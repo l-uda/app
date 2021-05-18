@@ -1,0 +1,96 @@
+<resources>
+    <string name="app_name">App LUDA</string>
+
+
+    <string name="warning">Attenzione</string>
+
+
+    <string name="close_alert">Close App?</string>
+    <string name="close_app_message">Do you really want to close the App</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+
+<!--    <string name="group_not_defined">gruppo non definito</string>-->
+    <string name="group_defined">gruppo %1$s</string>
+
+
+    <string name="group_wrong">il codice di gruppo che hai inserito potrebbe non essere valido, chiedi aiuto</string>
+
+<!--    <string name="uda_not_defined">UDA non assegnata</string>-->
+    <string name="uda_defined">UDA %1$s</string>
+
+<!--    <string name="status_not_defined">status non definito</string>-->
+    <string name="status_defined">status: %1$s</string>
+
+    <string name="bt_action_label_setgroup">Inserisci gruppo</string>
+    <string name="bt_action_label_stop">Interrompi</string>
+
+
+    <string name="status_start">Premi Inizia per registrare il tuo dispositivo</string>
+    <string name="action_start">inizia</string>
+
+    <!--    messaggi stati -->
+
+    <string name="status_idle">non c\'è nessuna sessione attiva</string>
+    <string name="action_idle">interrompi ricerca</string>
+
+    <string name="status_wait_app">inserisci il codice del tuo gruppo</string>
+    <string name="action_wait_app">invia</string>
+
+    <string name="status_group_sent">codice inviato…aspetta</string>
+    <string name="action_group_sent" />
+
+    <string name="status_reach_uda">Raggiungi la UDA numero %1$s</string>
+    <string name="action_reach_uda">conferma</string>
+
+    <string name="status_reaching_uda">stai raggiungendo la tua UDA</string>
+    <string name="action_reaching_uda">pronto per iniziare</string>
+
+    <string name="status_ready">aspetta che l\'attività venga fatta partire</string>
+    <string name="action_ready">interrompi</string>
+
+    <string name="status_started">UDA in corso</string>
+    <string name="action_started">pausa</string>
+
+    <string name="status_paused">UDA in pausa</string>
+    <string name="action_paused">riprendi</string>
+
+
+<!--region CURRENTLY UNUSED-->
+    <string name="status_resume"/>
+    <string name="action_resume"/>
+
+    <string name="status_pause" />
+    <string name="action_pause" />
+
+    <string name="status_restart" />
+    <string name="action_restart" />
+<!--endregion-->
+
+    <string name="status_wait_data">inserisci la risposta</string>
+    <string name="action_wait_data">invia</string>
+
+    <string name="status_data_sent">risposta inviata…attendi</string>
+    <string name="action_data_sent"/>
+
+    <string name="status_completed">la UDA è finita, attendi che di sapere quale è la prossima</string>
+    <string name="action_completed"/>
+
+    <string name="status_finalized">hai finito tutte le uda, vai al portale</string>
+    <string name="action_finalized"/>
+
+
+
+
+    <string-array name="groups_array">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string name="tts_language_notsupported">The Language specified is not supported!</string>
+    <string name="tts_notinitialized">Initialization Failed!</string>
+
+</resources>
