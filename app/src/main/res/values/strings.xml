@@ -55,17 +55,14 @@
     <string name="status_paused">UDA in pausa</string>
     <string name="action_paused">riprendi</string>
 
-
-<!--region CURRENTLY UNUSED-->
-    <string name="status_resume"/>
-    <string name="action_resume"/>
-
-    <string name="status_pause" />
+    <string name="status_pause">mettendo in pausa UDA</string>
     <string name="action_pause" />
 
-    <string name="status_restart" />
+    <string name="status_resume">riprendendo UDA</string>
+    <string name="action_resume"/>
+
+    <string name="status_restart">ripartendo UDA</string>
     <string name="action_restart" />
-<!--endregion-->
 
     <string name="status_wait_data">inserisci la risposta</string>
     <string name="action_wait_data">invia</string>
@@ -73,11 +70,32 @@
     <string name="status_data_sent">risposta inviata…attendi</string>
     <string name="action_data_sent"/>
 
+    <string name="status_abort">sto forzando la chiusura della UDA</string>
+    <string name="action_abort"></string>
+
+    <string name="status_aborted">UDA interrotta</string>
+    <string name="action_aborted"/>
+
     <string name="status_completed">la UDA è finita, attendi che di sapere quale è la prossima</string>
     <string name="action_completed"/>
 
     <string name="status_finalized">hai finito tutte le uda, vai al portale</string>
     <string name="action_finalized"/>
+
+    <string name="status_wait_server">Attendi che il gioco abbia inizio</string>
+    <string name="action_wait_server"/>
+
+    <string name="status_error_uda">errore nella UDA, attendi istruzioni</string>
+    <string name="action_error_uda"/>
+
+    <string name="status_error_app">errore nella APP, esci e riavviala</string>
+    <string name="action_error_app"/>
+
+    <string name="status_error_app_not_associated">"l\'APP non è associata ad alcun gruppo"</string>
+    <string name="action_error_app_not_associated"/>
+
+    <string name="status_error_srv">errore nel server, attendi istruzioni</string>
+    <string name="action_error_srv"/>
 
 
 

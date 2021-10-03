@@ -36,6 +36,9 @@ class RemoteConnector(private val service: UdaService){
         const val WAIT_DATA     = 14    //  status <- get(grpid)
         const val COMPLETED     = 16    //  status <- get(grpid)
         const val FINALIZED     = 18    //  status <- get(grpid)
+        const val WAIT_SERVER   = 19    //  status <- get(grpid)
+        const val ERROR_UDA     = 20    //  status <- get(grpid)
+        const val ERROR_SERVER  = 22    //  status <- get(grpid)
 
         // STATUS PUT
         const val GROUP_SENT    = 2     //  ---> put(data , status)
@@ -45,15 +48,13 @@ class RemoteConnector(private val service: UdaService){
         const val ABORT         = 11    //  ---> put(grpid, status)
         const val RESTART       = 13    //  ---> put(grpid, status)
         const val DATA_SENT     = 15    //  ---> put(grpid, status, data)
+        const val ERROR_APP     = 21    //  ---> put(grpid, status, data)
 
         // STATUS UNMANAGED
-        const val START         = 6     //  ........
+        const val START         = 6     //  the ADMIN send it to UDAs that respond with a STARTED
         const val FINALIZE      = 17    //  .......
 
 
-        const val ERROR_UDA     = 19
-        const val ERROR_APP     = 20
-        const val ERROR_SERVER  = 21
     }
     //============================================================================================
     // MANAGE POLLING
@@ -67,6 +68,7 @@ class RemoteConnector(private val service: UdaService){
     }
 
     fun stopPolling() {
+        groupId = -1
         disposableTimer?.dispose()
         disposableTimer = null
     }
@@ -83,12 +85,12 @@ class RemoteConnector(private val service: UdaService){
     //============================================================================================
     // PUT STATUS / DATA
     //============================================================================================
-    fun setGroup(grp_id: Int) {
+    fun setGroupID(grp_id: Int) {
 
-        if(grp_id == RESET){
-            groupId = grp_id
-            return
-        }
+//        if(grp_id == RESET){
+//            groupId = grp_id
+//            return
+//        }
         disposable = service.putStatus(grp_id, GROUP_SENT)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -96,7 +98,7 @@ class RemoteConnector(private val service: UdaService){
                 {
                     run {
                         groupId = grp_id
-                        newServerEvent.accept(Status(STATUS_SUCCESS, GROUP_SENT, grp_id))
+                        newServerEvent.accept(Status(STATUS_SUCCESS, GROUP_SENT, grp_id.toString()))
                     }
                 },
                 { error ->  processError(STATUS_ERROR, GROUP_SENT, error.message) })

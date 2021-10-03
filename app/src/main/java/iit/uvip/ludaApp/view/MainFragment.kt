@@ -1,5 +1,6 @@
 package iit.uvip.ludaApp.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -7,8 +8,15 @@ import android.widget.ArrayAdapter
 import androidx.fragment.app.activityViewModels
 
 import iit.uvip.ludaApp.R
-import iit.uvip.ludaApp.model.DependenciesProviderParam
-import iit.uvip.ludaApp.model.RemoteConnector
+import iit.uvip.ludaApp.model.*
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.ABORT
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.ABORTED
+import iit.uvip.ludaApp.viewmodel.StatusVM
+import kotlinx.android.synthetic.main.fragment_main.*
+import org.albaspazio.core.accessory.*
+import org.albaspazio.core.fragments.BaseFragment
+import org.albaspazio.core.ui.showAlert
+
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.IDLE
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.WAIT_APP
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.GROUP_SENT
@@ -23,18 +31,14 @@ import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESTART
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.WAIT_DATA
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.DATA_SENT
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.COMPLETED
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.ERROR_APP
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.ERROR_SERVER
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.ERROR_UDA
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.FINALIZED
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESET
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.STATUS_ERROR
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.STATUS_SUCCESS
-import iit.uvip.ludaApp.model.Status
-import iit.uvip.ludaApp.viewmodel.StatusVM
-import kotlinx.android.synthetic.main.fragment_main.*
-
-import org.albaspazio.core.accessory.isOnline
-import org.albaspazio.core.fragments.BaseFragment
-import org.albaspazio.core.ui.show1MethodDialog
-import org.albaspazio.core.ui.showAlert
-
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.WAIT_SERVER
 
 /*
 - The App can only put the following status:
@@ -49,7 +53,7 @@ DATA_SENT
 
 it changes its own GUI according to the following:
 
-START_STATUS (internal status not given by the server)
+RESET (returned by server when no session in present)
 IDLE
 WAIT_APP
 GROUP_SENT (directly after a successfull put, not read by the following get)
@@ -71,48 +75,106 @@ class MainFragment : BaseFragment(
 
     companion object {
         const val NO_STATUS = -2
-        const val START_STATUS = -1
+        const val NO_ACTION = -2
+
+        @JvmStatic val TARGET_FRAGMENT_ANSWER_REQUEST_CODE: Int    = 1
+
+        const val ERROR_QUESTION_EMPTY      = 100
+        const val ERROR_ANSWERS_EMPTY       = 101
+        const val ERROR_UNRECOGNIZED_STATUS = 102
+        const val ERROR_APP_NOT_ASSOCIATED  = 103
+
+        const val QUESTION_TYPE_STR = 0
+        const val QUESTION_TYPE_NUM = 1
+        const val QUESTION_TYPE_ARR = 2
     }
 
     override val LOG_TAG = MainFragment::class.java.simpleName
 
-    private val viewModelFactory = StatusVM.Factory(this, null, DependenciesProviderParam.getInstance(URL).remoteConnector)
-    private val viewModel:StatusVM by activityViewModels { viewModelFactory }
+    val viewModel:StatusVM by activityViewModels { viewModelFactory }
+    private val viewModelFactory    = StatusVM.Factory(this, null, DependenciesProviderParam.getInstance(URL).remoteConnector)
+    private var mStatus:Int         = NO_STATUS
 
-    private var mGroupId:Int = -1
-    private var mStatus:Int = -1
-    private var mPressStatus:Int = -1   // status to be sent when pressing action button
-    private var mActionStatus:Int = -1
+    private lateinit var mState:State   // onViewCreated set RESET
+
+    var mGroupId:Int = -1
+
     private var mIsOnline:Boolean   = false
 
-    // stores : status message, action button label, new status after button press.
-    private val messages:HashMap<Int, Triple<String, String, Int>> by lazy {  hashMapOf(
-        START_STATUS    to Triple(resources.getString(R.string.status_start)       , resources.getString(R.string.action_start)       , NO_STATUS),
-        IDLE            to Triple(resources.getString(R.string.status_idle)       , resources.getString(R.string.action_idle)       , NO_STATUS),
-        WAIT_APP        to Triple(resources.getString(R.string.status_wait_app)   , resources.getString(R.string.action_wait_app)   , GROUP_SENT),
-        GROUP_SENT      to Triple(resources.getString(R.string.status_group_sent) , resources.getString(R.string.action_group_sent) , NO_STATUS),
-        REACH_UDA       to Triple(resources.getString(R.string.status_reach_uda)  , resources.getString(R.string.action_reach_uda)  , REACHING_UDA),
-        REACHING_UDA    to Triple(resources.getString(R.string.status_reaching_uda),resources.getString(R.string.action_reaching_uda),READY),
-        READY           to Triple(resources.getString(R.string.status_ready)      , resources.getString(R.string.action_ready)      , REACHING_UDA),
-        STARTED         to Triple(resources.getString(R.string.status_started)    , resources.getString(R.string.action_started)    , PAUSE),
-        PAUSED          to Triple(resources.getString(R.string.status_paused)     , resources.getString(R.string.action_paused)     , RESUME),
-        WAIT_DATA       to Triple(resources.getString(R.string.status_wait_data)  , resources.getString(R.string.action_wait_data)  , DATA_SENT),
-        DATA_SENT       to Triple(resources.getString(R.string.status_data_sent)  , resources.getString(R.string.action_data_sent)  , NO_STATUS),
-        COMPLETED       to Triple(resources.getString(R.string.status_completed)  , resources.getString(R.string.action_completed)  , NO_STATUS),
-        FINALIZED       to Triple(resources.getString(R.string.status_finalized)  , resources.getString(R.string.action_finalized)  , NO_STATUS)
-//        RESUME          to Triple(resources.getString(R.string.stat),),
-//        ABORTED         to Triple(resources.getString(R.string.network_absent),),
-//        RESTART         to Triple(resources.getString(R.string.network_absent),),
-    )
+    // unmanaged: START=6, FINALIZE=17, WAIT_SERVER=19
+    private val states:HashMap<Int, State> by lazy { hashMapOf(
+        RESET           to NotPolling(this, resources), // -1
+        IDLE            to NoSession(this, resources),  // 0
+        WAIT_APP        to WaitApp(this, resources),    // 1
+        GROUP_SENT      to GroupSent(this, resources),  // 2
+        REACH_UDA       to ReachUda(this, resources),   // 3
+        REACHING_UDA    to ReachingUda(this, resources),// 4
+        READY           to Ready(this, resources),      // 5
+        STARTED         to Started(this, resources),    // 7
+        PAUSE           to Pause(this, resources),      // 8
+        PAUSED          to Paused(this, resources),     // 9
+        RESUME          to Resume(this, resources),     // 10
+        ABORT           to Abort(this, resources),      // 11
+        ABORTED         to Aborted(this, resources),    // 12
+        RESTART         to Restart(this, resources),    // 13
+        WAIT_DATA       to WaitData(this, resources),   // 14
+        DATA_SENT       to DataSent(this, resources),   // 15
+        COMPLETED       to Completed(this, resources),  // 16
+        FINALIZED       to Finalized(this, resources),  // 18
+        WAIT_SERVER     to WaitServer(this, resources), // 19
+        ERROR_UDA       to ErrorUDA(this, resources),   // 20
+        ERROR_APP       to ErrorApp(this, resources),   // 21
+        ERROR_SERVER    to ErrorServer(this, resources),// 22
+    )}
+
+    private fun setupObserver(){
+
+        viewModel.status.observe(viewLifecycleOwner) {
+//            Log.d("MAIN", "status: $it.status")
+
+            var data = ""
+            when(it.result) {
+                STATUS_SUCCESS -> {
+                    try{
+                        mStatus = it.status
+                        data    = it.data ?: ""
+                        Log.d("Main", "new status $mStatus")
+                    }
+                    catch (e:Exception){
+                        mStatus = ERROR_APP
+                    }
+
+                }
+                STATUS_ERROR -> {
+                    when(it.status){
+                        ERROR_APP_NOT_ASSOCIATED -> {  // devo ignorare quanto arriva dal server perchè è sicuramente sbagliato
+                            stopPolling()
+                            mStatus = ERROR_APP
+                        }
+                        else -> mStatus = ERROR_SERVER
+                    }
+                }
+            }
+            try{
+                mState = states[mStatus] ?: states[ERROR_SERVER]!!
+                mState.apply(data)
+            }
+            catch (e:Exception){
+                mStatus = ERROR_APP
+                mState = states[mStatus] ?: states[ERROR_SERVER]!!
+                mState.apply(data)
+            }
+        }
     }
 
-    //==============================================================================================================
+    //region LIFECYCLE
+    //======================================================================
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         initGroupsSpinner()
         setupObserver()
-        viewModel.status.value = Status(STATUS_SUCCESS, START_STATUS, "")
+        viewModel.status.value = Status(STATUS_SUCCESS, RESET, "")
     }
 
     override fun onResume() {
@@ -120,220 +182,68 @@ class MainFragment : BaseFragment(
         requireActivity().window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
         checkConnection()
     }
+    //endregion======================================================================
 
-    //==============================================================================================================
-    // BUSINESS LOGIC
-    //==============================================================================================================
-    private fun setupObserver(){
-
-        viewModel.status.observe(viewLifecycleOwner) {
-            when(it.result) {
-
-                STATUS_SUCCESS -> {
-
-                    mStatus     = it.status
-                    val data    = it.data
-
-                    Log.d("Main", "new status $mStatus")
-                    updateButtonAction(mStatus)
-                    updateComponentsVisibility(mStatus)
-                    updateUITexts(mStatus, messages[it.status] ?: Triple("","",-1), data)
-
-                    when(mStatus){
-
-                        START_STATUS    -> {}   // app init or after user cancel session search. show only start button
-                                                // on click: start polling
-                        IDLE            -> {}   // no server session exist, go on looking for a valid session
-                                                // on click: stop polling, reset App
-                        WAIT_APP        -> {}   // server session initialized, show INSERT GROUP FORM
-                                                // on click: send group
-                        GROUP_SENT      -> {    // user sent ID, server may answer: ok => show "GROUP SENT" and wait for REACH_UDA, ko: show "INSERT AGAIN group id"
-                            if(data == -1)
-                                show1MethodDialog(requireActivity(), resources.getString(R.string.warning),resources.getString(R.string.group_wrong)) {
-                                    viewModel.status.value = Status(STATUS_SUCCESS, WAIT_APP, "")
-                                }
-                            else
-                                mGroupId = data.toString().toInt()
-
-                        }
-                        REACH_UDA       -> {    mPressStatus = REACHING_UDA }   // server specify next uda, show "REACH UDA #X, press button to confirm", update button text
-                        REACHING_UDA    -> {    mPressStatus = READY        }   // user confirmed that is reaching uda, show "press button I'm ready when user physically reach the uda"
-                        READY           -> {    mPressStatus = REACHING_UDA }   // user told he is ready. show "waiting for uda start", button send app back to REACHING_UDA
-                        STARTED         -> {    mPressStatus = PAUSE }          // show started
-                        PAUSE           -> {}
-                        PAUSED          -> {    mPressStatus = RESTART }        // show paused
-                        RESUME          -> {}
-                        RESTART         -> {}
-                        WAIT_DATA       -> {}    //  show "insert answer" form
-                        DATA_SENT       -> {}    //  show sending data
-                        COMPLETED       -> {}    //  show completed
-                        FINALIZED       -> {}    //  show finalized
-                    }
-                }
-                STATUS_ERROR -> {
-                    updateUITexts(-1, Triple("errore stato : $it", "", NO_STATUS))
-                }
-            }
-        }
-    }
-
-    //======================================================================
-    // UI UPDATES & INTERACTIONS
-    //======================================================================
-    private fun updateUITexts(status:Int, text:Triple<String, String, Int>, data:Any?=null){
-
-        txtStatus.text = text.first
-
-        if(text.second.isNullOrEmpty())
-            btAction.visibility = View.INVISIBLE
-        else {
-            btAction.text       = text.second
-            btAction.visibility = View.VISIBLE
-        }
-
-        mActionStatus = text.third
-
-        when(status){
-            GROUP_SENT      -> {
-                val d = data as Int
-                txtGroup.text = if(d == -1)         resources.getString(R.string.group_wrong)
-                                else                d.toString() // resources.getString(R.string.group_defined, d.toString())
-            }
-            REACH_UDA       -> txtUDA.text = data.toString()
-        }
-
-    }
-
-    private fun updateComponentsVisibility(status:Int){
-        when(status){
-            START_STATUS -> {
-                txtStatus.visibility    = View.INVISIBLE
-                txtGroup.visibility     = View.INVISIBLE
-                txtUDA.visibility       = View.INVISIBLE
-                txtResult.visibility    = View.INVISIBLE
-                spinner.visibility      = View.INVISIBLE
-            }
-            IDLE -> {
-                txtStatus.visibility    = View.VISIBLE      // <-----
-                txtGroup.visibility     = View.INVISIBLE
-                txtUDA.visibility       = View.INVISIBLE
-                txtResult.visibility    = View.INVISIBLE
-                spinner.visibility      = View.INVISIBLE
-            }
-            WAIT_APP -> {
-                txtStatus.visibility    = View.VISIBLE
-                txtGroup.visibility     = View.INVISIBLE
-                txtUDA.visibility       = View.INVISIBLE
-                txtResult.visibility    = View.INVISIBLE
-                spinner.visibility      = View.VISIBLE      // <-----
-            }
-            GROUP_SENT -> {     // this is given when GROUP_SENT put is successfull
-                txtStatus.visibility    = View.INVISIBLE
-                txtGroup.visibility     = View.VISIBLE      // <-----
-                txtUDA.visibility       = View.INVISIBLE
-                txtResult.visibility    = View.INVISIBLE
-                spinner.visibility      = View.INVISIBLE    // <-----
-            }
-            REACH_UDA   ->  {
-                txtStatus.visibility    = View.VISIBLE
-                txtGroup.visibility     = View.VISIBLE
-                txtUDA.visibility       = View.VISIBLE      // <-----
-                txtResult.visibility    = View.INVISIBLE
-                spinner.visibility      = View.INVISIBLE
-            }
-            WAIT_DATA -> {
-                txtStatus.visibility    = View.VISIBLE
-                txtGroup.visibility     = View.VISIBLE
-                txtUDA.visibility       = View.VISIBLE
-                txtResult.visibility    = View.VISIBLE      // <-----
-                spinner.visibility      = View.INVISIBLE
-            }
-
-            else -> {
-                txtStatus.visibility    = View.VISIBLE
-                txtGroup.visibility     = View.VISIBLE
-                txtUDA.visibility       = View.VISIBLE
-                txtResult.visibility    = View.INVISIBLE
-                spinner.visibility      = View.INVISIBLE
-            }
-        }
-    }
-
-    // put status, put status+data or nothing
-    private fun updateButtonAction(status:Int){
-
-        btAction.visibility = View.VISIBLE
-        when(status){
-            START_STATUS -> {
-                btAction.setOnClickListener{
-                    startPolling()
-                    viewModel.status.value = Status(STATUS_SUCCESS, START_STATUS, "")
-                }
-            }
-
-            IDLE -> {
-                btAction.setOnClickListener{
-                    stopPolling()
-                    viewModel.status.value = Status(STATUS_SUCCESS, START_STATUS, "")
-                }
-            }
-            WAIT_APP -> {
-                btAction.setOnClickListener{
-                    insertGroupID(spinner.selectedItemPosition+1)
-                }
-            }
-            REACH_UDA, REACHING_UDA, READY, STARTED, PAUSED -> {
-                btAction.setOnClickListener{
-                    put(mPressStatus)
-                }
-            }
-            WAIT_DATA -> {
-                btAction.setOnClickListener{
-                    viewModel.put(mGroupId, DATA_SENT, "")
-                }
-            }
-            RESUME, RESTART, PAUSE -> {
-                btAction.setOnClickListener{}
-                btAction.visibility = View.INVISIBLE
-            }
-            else ->{
-                btAction.setOnClickListener{
-                    put(status)
-                }
-            }
-
-        }
-    }
-    //======================================================================
     //region REMOTE CALLS
     //======================================================================
-    private fun put(status:Int, data:String = ""){
+    fun put(status:Int, data:String = ""){
         if(checkConnection())
             if(status != NO_STATUS)
                 viewModel.put(mGroupId, status, data)
     }
 
-    private fun insertGroupID(grp_id:Int){
+    fun insertGroupID(grp_id:Int){
+        if(grp_id == -1){
+            return
+        }
         if(checkConnection())        viewModel.setGroupID(grp_id)
     }
 
-    private fun startPolling(groupId:Int = -1){
+    fun startPolling(){
         if(checkConnection())        viewModel.startPolling()
     }
 
-    private fun stopPolling(groupId:Int = -1){
+    fun stopPolling(){
+        mGroupId = -1
         if(checkConnection())        viewModel.stopPolling()
     }
     //endregion======================================================================
 
+    //region ANSWERS
     //======================================================================
+    fun showAnswerDialog(jsondata:String, type:Int){
+
+        val bundle = Bundle()
+        bundle.putString("data", jsondata)
+
+        val df = if(type == QUESTION_TYPE_ARR)   AnswerButtonsDF()
+                 else                            AnswerTextDF()
+
+        df.arguments    = bundle
+        df.setTargetFragment(this, TARGET_FRAGMENT_ANSWER_REQUEST_CODE)
+        df.isCancelable = false
+        df.show(parentFragmentManager, "Inserisci Risposta")
+    }
+
+    override fun onActivityResult(requestCode:Int, resultCode:Int, data: Intent?) {
+
+        when(requestCode){
+            TARGET_FRAGMENT_ANSWER_REQUEST_CODE -> {
+                val answer = data?.getStringExtra("answer") ?: ""
+                put(DATA_SENT, answer)
+
+            }
+        }
+    }
+    //endregion======================================================================
+
     //region ACCESSORY
     //======================================================================
     private fun initGroupsSpinner(){
         ArrayAdapter.createFromResource(requireContext(), R.array.groups_array, android.R.layout.simple_spinner_item)
             .also { adapter ->
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                spinner.adapter = adapter
+                spGroup.adapter = adapter
             }
     }
 

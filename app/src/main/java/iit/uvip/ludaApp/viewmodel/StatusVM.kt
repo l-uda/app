@@ -8,11 +8,14 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 
 import iit.uvip.ludaApp.model.RemoteConnector
-import iit.uvip.ludaApp.model.RemoteConnector.Companion.GROUP_SENT
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.ERROR_SERVER
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.IDLE
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESET
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.STATUS_ERROR
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.STATUS_SUCCESS
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.WAIT_APP
 import iit.uvip.ludaApp.model.Status
-import iit.uvip.ludaApp.view.MainFragment.Companion.START_STATUS
+import iit.uvip.ludaApp.view.MainFragment.Companion.ERROR_APP_NOT_ASSOCIATED
 
 // here I check whether new status is different from current one
 // in that case, I change status (which is a MutableLiveData<Status> observed in the GUI)
@@ -48,23 +51,18 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe {
             if(it.result == STATUS_SUCCESS) {
-                if (it.status != statusId) {
+                if (it.status != statusId) {            // NEW STATUS RECEIVED
+
+                    if(it.status > IDLE && groupId == -1)   // c'è una sessione in corso, ma l'app non è collegata a nessun gruppo => chiedi associazione
+                        it.status = WAIT_APP
+
                     statusId        = it.status
-
-                    when(statusId){
-
-                        RESET -> {
-                            groupId = -1
-                            setGroupID(groupId);
-                        }
-
-                        GROUP_SENT-> {
-                                if (it.data != "DATA_NOP")
-                                    groupId = it.data.toString().toInt()
-                            }
-                    }
                     status.value    = it
                 }
+            }
+            else{
+                statusId        = ERROR_SERVER
+                status.value    = Status(STATUS_ERROR, ERROR_SERVER, it.data)
             }
         }
         .addTo(disposable)
@@ -73,12 +71,19 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
     //======================================================================
     // put
     //======================================================================
-    fun put(grp_id: Int, status:Int, data:String = "") {
-        remoteConnector.put(grp_id, status, data)
+    fun put(grp_id: Int, status_code:Int, data:String = "") {
+
+        if(grp_id == -1){
+            statusId        = ERROR_APP_NOT_ASSOCIATED
+            status.value    = Status(STATUS_ERROR, statusId)
+            return
+        }
+        remoteConnector.put(grp_id, status_code, data)
     }
 
     fun setGroupID(grp_id:Int){
-        remoteConnector.setGroup(grp_id)
+        groupId = grp_id
+        remoteConnector.setGroupID(grp_id)
     }
 
     //======================================================================
@@ -95,8 +100,9 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
     }
 
     fun stopPolling() {
+        groupId = -1
         remoteConnector.stopPolling()
-        statusId = START_STATUS
+        statusId = RESET
     }
     //======================================================================
     class Factory(
