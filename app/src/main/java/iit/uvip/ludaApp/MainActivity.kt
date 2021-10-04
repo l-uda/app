@@ -109,8 +109,8 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     override fun onDestroy() {
 
         // release TTS
-        val application = applicationContext as MainApplication
-        application.tts?.shutdown()
+        val app = application as MainApplication
+        app.tts?.shutdown()
 
         dialog?.dismiss()
         findNavController(R.id.my_nav_host_fragment).removeOnDestinationChangedListener(this)

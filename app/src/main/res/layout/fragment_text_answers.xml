@@ -8,30 +8,34 @@
     <TextView
         android:id="@+id/txtQuestion"
         android:layout_width="286dp"
-        android:layout_height="49dp"
+        android:layout_height="65dp"
         android:layout_marginTop="72dp"
-        android:text="TextView"
+        android:text=""
+        android:textSize="34sp"
+        android:background="@drawable/edit_text_border"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
+    <EditText
         android:id="@+id/txtAnswer"
-        android:layout_width="287dp"
-        android:layout_height="55dp"
+        android:layout_width="284dp"
+        android:layout_height="66dp"
         android:layout_marginTop="68dp"
-        android:text="TextView"
+        android:textSize="34sp"
+        android:background="@drawable/edit_text_border"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtQuestion" />
+        app:layout_constraintTop_toBottomOf="@+id/txtQuestion"/>
 
     <Button
         android:id="@+id/btSubmit"
-        android:layout_width="287dp"
-        android:layout_height="53dp"
+        android:layout_width="286dp"
+        android:layout_height="71dp"
         android:layout_marginTop="76dp"
         android:text="INVIA"
+        android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtAnswer" />

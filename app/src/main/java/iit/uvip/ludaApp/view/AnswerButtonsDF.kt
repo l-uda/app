@@ -4,13 +4,11 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.DialogFragment
 import iit.uvip.ludaApp.R
 import kotlinx.android.synthetic.main.fragment_button_answers.*
@@ -18,14 +16,9 @@ import org.albaspazio.core.accessory.getArrayOrNull
 import org.albaspazio.core.accessory.jsonObject
 
 
-
-
-
 class AnswerButtonsDF: DialogFragment() {
 
     open val LOG_TAG: String = AnswerButtonsDF::class.java.simpleName
-
-//    private lateinit var layout: LinearLayout
 
     private val answers = mutableListOf<String>()
 
@@ -44,8 +37,6 @@ class AnswerButtonsDF: DialogFragment() {
         val arr = json?.getArrayOrNull("input_type")
 
         if(arr != null) {
-//            layout = LinearLayout(context)
-//            layout.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT)
 
               for (a in 0 until arr.length()) {
                 val answ = arr.get(a) as String
