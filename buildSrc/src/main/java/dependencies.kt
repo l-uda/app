@@ -4,8 +4,8 @@ object Configs {
     const val compileSdkVersion = 29
     const val minSdkVersion     = 23
     const val targetSdkVersion  = 26
-    const val versionCode       = 1
-    const val versionName       = "0.1.1"
+    const val versionCode       = 4
+    const val versionName       = "0.1.2.4"
 }
 
 object Versions {
@@ -20,7 +20,7 @@ object Versions {
     const val retrofit = "2.6.3"
 
     const val lifecycle = "2.2.0"
-    const val fragment = "1.2.5"
+    const val fragment = "1.3.0"
 }
 
 object Dependencies {

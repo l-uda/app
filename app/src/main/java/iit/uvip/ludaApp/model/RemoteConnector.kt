@@ -40,6 +40,10 @@ class RemoteConnector(private val service: UdaService){
         const val ERROR_UDA     = 20    //  status <- get(grpid)
         const val ERROR_SERVER  = 22    //  status <- get(grpid)
 
+        const val RECEIVED_UDA_ID = 103 // this is returned after a GROUP_SENT
+                                        // used to get associated uda when APP reconnect after a crash
+
+
         // STATUS PUT
         const val GROUP_SENT    = 2     //  ---> put(data , status)
         const val REACHING_UDA  = 4     //  ---> put(grpid, status)
@@ -86,11 +90,6 @@ class RemoteConnector(private val service: UdaService){
     // PUT STATUS / DATA
     //============================================================================================
     fun setGroupID(grp_id: Int) {
-
-//        if(grp_id == RESET){
-//            groupId = grp_id
-//            return
-//        }
         disposable = service.putStatus(grp_id, GROUP_SENT)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
@@ -99,13 +98,14 @@ class RemoteConnector(private val service: UdaService){
                     run {
                         groupId = grp_id
                         newServerEvent.accept(Status(STATUS_SUCCESS, GROUP_SENT, grp_id.toString()))
+                        newServerEvent.accept(Status(STATUS_SUCCESS, RECEIVED_UDA_ID, it.data))
                     }
                 },
                 { error ->  processError(STATUS_ERROR, GROUP_SENT, error.message) })
     }
     //============================================================================================
     fun put(grp_id: Int, status:Int, data:String = ""){
-        lastSentStatus = DATA_SENT
+        lastSentStatus = status
         disposable = service.putStatus(grp_id, status, data)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

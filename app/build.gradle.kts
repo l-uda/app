@@ -20,9 +20,33 @@ android {
 
     buildTypes {
         getByName("release") {
+            applicationIdSuffix = ".release"
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile(ProGuards.proguardTxt), ProGuards.androidDefault)        }
+            isDebuggable = false
+            proguardFiles(getDefaultProguardFile(ProGuards.proguardTxt), ProGuards.androidDefault)
+        }
+
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+            isDebuggable = true
+        }
     }
+
+    flavorDimensions("version")
+    productFlavors {
+        create("stage") {
+            // Assigns this product flavor to the "version" flavor dimension. If you are using only one dimension, this property is optional, and the plugin automatically assigns all the module's flavors to that dimension.
+            dimension = "version"
+            applicationIdSuffix = ".stage"
+            versionNameSuffix = "-stage"
+            buildConfigField("String", "server_url", "\"https://www.sagosoft.it/_API_/cpim/luda/www/luda_20210111_1500\"")
+        }
+        create("production") {
+            dimension = "version"
+            buildConfigField("String", "server_url", "\"http://localhost:333\"")
+        }
+    }
+
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -58,6 +82,8 @@ dependencies {
     testImplementation("junit:junit:4.13")
     androidTestImplementation("androidx.test:runner:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
+
+    debugImplementation("androidx.fragment:fragment-testing:${Versions.fragment}")
 
 
 }

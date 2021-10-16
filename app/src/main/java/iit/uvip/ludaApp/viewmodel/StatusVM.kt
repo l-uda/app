@@ -46,12 +46,15 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
 
     val status = MutableLiveData<Status>()
 
+    // quando l'app non è collegata a nessun gruppo (groupId = -1) . il get=-1 ritorna lo status del server
+    // una volta collegata (groupId > 0), il get ritorna lo status della uda collegata in quel turno all'app.
+    // quando faccio INIT/REBOOT sul server lo status del server= 0, mentre ciascuna uda= -1
     init {
         remoteConnector.newServerEvent
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe {
             if(it.result == STATUS_SUCCESS) {
-                if (it.status != statusId) {            // NEW STATUS RECEIVED
+                if (it.status != statusId) {                // I change status.value only when a NEW STATUS is RECEIVED
 
                     if(it.status > IDLE && groupId == -1)   // c'è una sessione in corso, ma l'app non è collegata a nessun gruppo => chiedi associazione
                         it.status = WAIT_APP

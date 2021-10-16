@@ -1,5 +1,6 @@
 package iit.uvip.ludaApp.model
 
+import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.view.View
 import iit.uvip.ludaApp.R
@@ -59,7 +60,6 @@ class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
     override fun setButtonAction(){
         fragment.btAction.setOnClickListener{
             fragment.startPolling()
-            //fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET, "")
         }
     }
 
@@ -79,8 +79,8 @@ class NoSession(frg:MainFragment, res:Resources):State(frg,res){
 
     override fun setButtonAction(){
         fragment.btAction.setOnClickListener{
-            fragment.stopPolling()
             fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET, "")
+            fragment.stopPolling()
         }
     }
 
@@ -109,7 +109,7 @@ class WaitApp(frg:MainFragment, res:Resources):State(frg,res){
         
         fragment.txtGroup.visibility     = View.INVISIBLE
         fragment.txtUDA.visibility       = View.INVISIBLE
-        fragment.spGroup.visibility      = View.VISIBLE      // <-----
+        fragment.spGroup.visibility      = View.VISIBLE
     }
 }
 
@@ -149,9 +149,13 @@ class ReachUda(frg:MainFragment, res:Resources):State(frg,res){
     override var mPressStatus:Int               = RemoteConnector.REACHING_UDA
     override var message:Pair<String, String>   = Pair(res.getString(R.string.status_reach_uda), res.getString(R.string.action_reach_uda))
 
+    @SuppressLint("SetTextI18n")
     override fun setUITexts(data:String){
-        super.setUITexts(data)
-        fragment.txtUDA.text = data
+        fragment.txtStatus.text         = message.first + " " + data
+        fragment.txtUDA.text            = data
+
+        fragment.btAction.text          = message.second
+        fragment.btAction.visibility    = View.VISIBLE
     }
 }
 
@@ -291,6 +295,16 @@ class ErrorServer(frg:MainFragment, res:Resources):State(frg,res){
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_error_srv), res.getString(R.string.action_error_srv))
 }
 
+// 1003 RECEIVED_UDA_ID, used only to save uda_id when the app reconnect on an already open session
+class ReConnected(frg:MainFragment, res:Resources):State(frg,res){
 
+    override var message:Pair<String, String>   = Pair(res.getString(R.string.status_reconnected), res.getString(R.string.action_reconnected))
 
+    override fun setUITexts(data:String){
+        fragment.txtStatus.text         = message.first + " " + data
+        fragment.txtUDA.text            = data
+
+        fragment.btAction.visibility    = View.INVISIBLE
+    }
+}
 

@@ -1,7 +1,5 @@
 package iit.uvip.ludaApp.view
 
-import android.app.Activity
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,16 +7,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
+import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import iit.uvip.ludaApp.R
 import kotlinx.android.synthetic.main.fragment_button_answers.*
 import org.albaspazio.core.accessory.getArrayOrNull
 import org.albaspazio.core.accessory.jsonObject
 
-
 class AnswerButtonsDF: DialogFragment() {
 
-    open val LOG_TAG: String = AnswerButtonsDF::class.java.simpleName
+//    val LOG_TAG: String = AnswerButtonsDF::class.java.simpleName
 
     private val answers = mutableListOf<String>()
 
@@ -61,14 +59,8 @@ class AnswerButtonsDF: DialogFragment() {
         layout.addView(dynamicButton)
     }
 
-
     private fun sendResult(answer:String) {
-        if (targetFragment == null) {
-            return
-        }
-        val intent = Intent()
-        intent.putExtra("answer", answer)
-        targetFragment!!.onActivityResult(targetRequestCode, Activity.RESULT_OK, intent)
+        requireActivity().supportFragmentManager.setFragmentResult(MainFragment.TARGET_FRAGMENT_ANSWER_REQUEST, bundleOf(Pair("answer", answer)))
         dismiss()
     }
 }

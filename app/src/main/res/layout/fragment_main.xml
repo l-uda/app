@@ -9,12 +9,13 @@
 
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="62dp"
-        android:layout_height="26dp"
-        android:layout_marginTop="52dp"
-        android:layout_marginEnd="8dp"
+        android:layout_width="102dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="16dp"
         android:text="GROUP: "
         android:textAlignment="textEnd"
+        android:textSize="24sp"
         app:layout_constraintEnd_toStartOf="@+id/txtGroup"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -46,8 +47,8 @@
 
     <TextView
         android:id="@+id/txtGroup"
-        android:layout_width="48dp"
-        android:layout_height="25dp"
+        android:layout_width="49dp"
+        android:layout_height="40dp"
         android:layout_marginTop="48dp"
         android:layout_marginEnd="16dp"
         android:text=""
@@ -59,8 +60,8 @@
     <TextView
         android:id="@+id/txtUDA"
         android:layout_width="52dp"
-        android:layout_height="26dp"
-        android:layout_marginStart="4dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="48dp"
         android:textAlignment="center"
         android:textSize="24sp"
@@ -71,7 +72,7 @@
         android:id="@+id/spGroup"
         android:layout_width="140dp"
         android:layout_height="48dp"
-        android:layout_marginTop="540dp"
+        android:layout_marginTop="436dp"
         android:textAlignment="viewEnd"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -79,14 +80,27 @@
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="62dp"
-        android:layout_height="26dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="52dp"
+        android:layout_width="71dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="48dp"
         android:text="UDA: "
         android:textAlignment="textEnd"
+        android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/txtUrl"
+        android:layout_width="690dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="28dp"
+        android:layout_marginBottom="16dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

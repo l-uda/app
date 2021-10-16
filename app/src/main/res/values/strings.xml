@@ -40,7 +40,7 @@
     <string name="status_group_sent">codice inviato…aspetta</string>
     <string name="action_group_sent" />
 
-    <string name="status_reach_uda">Raggiungi la UDA numero %1$s</string>
+    <string name="status_reach_uda">Raggiungi la UDA numero: </string>
     <string name="action_reach_uda">conferma</string>
 
     <string name="status_reaching_uda">stai raggiungendo la tua UDA</string>
@@ -71,7 +71,7 @@
     <string name="action_data_sent"/>
 
     <string name="status_abort">sto forzando la chiusura della UDA</string>
-    <string name="action_abort"></string>
+    <string name="action_abort"/>
 
     <string name="status_aborted">UDA interrotta</string>
     <string name="action_aborted"/>
@@ -97,6 +97,8 @@
     <string name="status_error_srv">errore nel server, attendi istruzioni</string>
     <string name="action_error_srv"/>
 
+    <string name="status_reconnected">Riconnesso, attendi nuovo status</string>
+    <string name="action_reconnected"/>
 
 
 

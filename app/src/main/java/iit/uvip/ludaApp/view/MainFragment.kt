@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 
 import iit.uvip.ludaApp.R
 import iit.uvip.ludaApp.model.*
@@ -35,6 +37,7 @@ import iit.uvip.ludaApp.model.RemoteConnector.Companion.ERROR_APP
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.ERROR_SERVER
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.ERROR_UDA
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.FINALIZED
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.RECEIVED_UDA_ID
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESET
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.STATUS_ERROR
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.STATUS_SUCCESS
@@ -77,12 +80,12 @@ class MainFragment : BaseFragment(
         const val NO_STATUS = -2
         const val NO_ACTION = -2
 
-        @JvmStatic val TARGET_FRAGMENT_ANSWER_REQUEST_CODE: Int    = 1
+        @JvmStatic val TARGET_FRAGMENT_ANSWER_REQUEST: String = "TARGET_FRAGMENT_ANSWER_REQUEST"
 
-        const val ERROR_QUESTION_EMPTY      = 100
-        const val ERROR_ANSWERS_EMPTY       = 101
-        const val ERROR_UNRECOGNIZED_STATUS = 102
-        const val ERROR_APP_NOT_ASSOCIATED  = 103
+        const val ERROR_QUESTION_EMPTY      = 1000
+        const val ERROR_ANSWERS_EMPTY       = 1001
+        const val ERROR_UNRECOGNIZED_STATUS = 1002
+        const val ERROR_APP_NOT_ASSOCIATED  = 1003
 
         const val QUESTION_TYPE_STR = 0
         const val QUESTION_TYPE_NUM = 1
@@ -95,11 +98,15 @@ class MainFragment : BaseFragment(
     private val viewModelFactory    = StatusVM.Factory(this, null, DependenciesProviderParam.getInstance(URL).remoteConnector)
     private var mStatus:Int         = NO_STATUS
 
-    private lateinit var mState:State   // onViewCreated set RESET
+    private var isPolling:Boolean   = false     // this var is needed because stop polling takes time.
+                                                // when I call a stop polling and go to -1, there can be a status 0 that take me back to 0 (Nosession)
+                                                // with this flag I can ignore it
+    private lateinit var mState:State   // onViewCreated set it to RESET
 
     var mGroupId:Int = -1
 
-    private var mIsOnline:Boolean   = false
+    private var mAnswerDF: DialogFragment?  = null
+    private var mIsOnline:Boolean           = false
 
     // unmanaged: START=6, FINALIZE=17, WAIT_SERVER=19
     private val states:HashMap<Int, State> by lazy { hashMapOf(
@@ -125,12 +132,15 @@ class MainFragment : BaseFragment(
         ERROR_UDA       to ErrorUDA(this, resources),   // 20
         ERROR_APP       to ErrorApp(this, resources),   // 21
         ERROR_SERVER    to ErrorServer(this, resources),// 22
+        RECEIVED_UDA_ID to ReConnected(this, resources),// 1003
     )}
 
     private fun setupObserver(){
 
         viewModel.status.observe(viewLifecycleOwner) {
 //            Log.d("MAIN", "status: $it.status")
+
+            if(!isPolling) return@observe
 
             var data = ""
             when(it.result) {
@@ -156,6 +166,9 @@ class MainFragment : BaseFragment(
                 }
             }
             try{
+                // CHANGE STATE !!
+                mAnswerDF?.dismiss()
+                mAnswerDF = null
                 mState = states[mStatus] ?: states[ERROR_SERVER]!!
                 mState.apply(data)
             }
@@ -174,6 +187,8 @@ class MainFragment : BaseFragment(
 
         initGroupsSpinner()
         setupObserver()
+        txtUrl.setText(URL)
+        isPolling = true    // to set init status I enable status-updating in the observer
         viewModel.status.value = Status(STATUS_SUCCESS, RESET, "")
     }
 
@@ -200,10 +215,15 @@ class MainFragment : BaseFragment(
     }
 
     fun startPolling(){
-        if(checkConnection())        viewModel.startPolling()
+
+        if(checkConnection()){
+            isPolling = true
+            viewModel.startPolling()
+        }
     }
 
     fun stopPolling(){
+        isPolling = false
         mGroupId = -1
         if(checkConnection())        viewModel.stopPolling()
     }
@@ -216,22 +236,18 @@ class MainFragment : BaseFragment(
         val bundle = Bundle()
         bundle.putString("data", jsondata)
 
-        val df = if(type == QUESTION_TYPE_ARR)   AnswerButtonsDF()
-                 else                            AnswerTextDF()
+        mAnswerDF = if(type == QUESTION_TYPE_ARR)   AnswerButtonsDF()
+                    else                            AnswerTextDF()
 
-        df.arguments    = bundle
-        df.setTargetFragment(this, TARGET_FRAGMENT_ANSWER_REQUEST_CODE)
-        df.isCancelable = false
-        df.show(parentFragmentManager, "Inserisci Risposta")
-    }
+        mAnswerDF?.arguments    = bundle
+        mAnswerDF?.isCancelable = false
+        mAnswerDF?.show(parentFragmentManager, "Inserisci Risposta")
 
-    override fun onActivityResult(requestCode:Int, resultCode:Int, data: Intent?) {
-
-        when(requestCode){
-            TARGET_FRAGMENT_ANSWER_REQUEST_CODE -> {
-                val answer = data?.getStringExtra("answer") ?: ""
+        requireActivity().supportFragmentManager.setFragmentResultListener(TARGET_FRAGMENT_ANSWER_REQUEST, viewLifecycleOwner) { requestKey, bundl ->
+            if(requestKey == TARGET_FRAGMENT_ANSWER_REQUEST){
+                val answer = bundl.getString("answer") ?: ""
                 put(DATA_SENT, answer)
-
+                mAnswerDF = null
             }
         }
     }
