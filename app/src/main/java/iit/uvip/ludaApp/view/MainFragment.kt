@@ -147,12 +147,11 @@ class MainFragment : BaseFragment(
 
             if(!isPolling) return@observe
 
-            var data = ""
+            var data = it.data ?: ""
             when(it.result) {
                 STATUS_SUCCESS -> {
                     try{
                         mStatus = it.status
-                        data    = it.data ?: ""
                         Log.d("Main", "new status $mStatus")
                     }
                     catch (e:Exception){
@@ -161,13 +160,12 @@ class MainFragment : BaseFragment(
 
                 }
                 STATUS_ERROR -> {
-                    when(it.status){
-                        ERROR_APP_NOT_ASSOCIATED -> {  // devo ignorare quanto arriva dal server perchè è sicuramente sbagliato
-                            stopPolling()
-                            mStatus = ERROR_APP
-                        }
-                        else -> mStatus = ERROR_SERVER
+                    mStatus = when(it.status){
+                        ERROR_APP_NOT_ASSOCIATED    -> ERROR_APP   // devo ignorare quanto arriva dal server perchè è sicuramente sbagliato
+                        else                        -> ERROR_SERVER
                     }
+
+//                    stopPolling()
                 }
             }
             try{

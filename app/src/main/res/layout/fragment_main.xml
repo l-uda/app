@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
     tools:context=".view.MainFragment">
 
 
@@ -25,19 +27,19 @@
         android:layout_width="348dp"
         android:layout_height="102dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="264dp"
+        android:layout_marginTop="40dp"
         android:layout_marginEnd="8dp"
         android:text="@string/bt_action_label_setgroup"
         android:textColorLink="@color/colorAccent"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/txtStatus" />
 
     <TextView
         android:id="@+id/txtStatus"
-        android:layout_width="657dp"
-        android:layout_height="113dp"
+        android:layout_width="904dp"
+        android:layout_height="61dp"
         android:layout_marginTop="112dp"
         android:textAlignment="center"
         android:textSize="24sp"
@@ -69,13 +71,13 @@
 
     <Spinner
         android:id="@+id/spGroup"
-        android:layout_width="140dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="564dp"
+        android:layout_width="165dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="20dp"
         android:textAlignment="viewEnd"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/btAction" />
 
     <TextView
         android:id="@+id/textView"
@@ -90,14 +92,15 @@
 
     <EditText
         android:id="@+id/txtUrl"
-        android:layout_width="690dp"
-        android:layout_height="48dp"
-        android:layout_marginBottom="16dp"
+        android:layout_width="958dp"
+        android:layout_height="68dp"
+        android:layout_marginBottom="36dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.136"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
@@ -105,7 +108,7 @@
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="338dp"
         android:layout_height="94dp"
-        android:layout_marginTop="52dp"
+        android:layout_marginTop="64dp"
         android:text="Button"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -123,6 +126,16 @@
         android:text="ABORT"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+<!--    <TextView-->
+<!--        android:id="@+id/txtError"-->
+<!--        android:layout_width="899dp"-->
+<!--        android:layout_height="67dp"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:text=""-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/txtStatus" />-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

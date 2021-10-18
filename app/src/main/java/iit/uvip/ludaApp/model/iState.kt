@@ -47,6 +47,8 @@ abstract class State(val fragment: MainFragment, val res:Resources) {
             fragment.btAction.text       = message.second
             fragment.btAction.visibility = View.VISIBLE
         }
+
+        fragment.txtUrl.visibility       = View.INVISIBLE
     }
 
     open fun setComponentsVisibility(data:String){
@@ -69,6 +71,7 @@ class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_start), res.getString(R.string.action_start))
 
     override fun setButtonAction(){
+        super.setButtonAction()
         fragment.btAction.setOnClickListener{ fragment.startPolling() }
 
         fragment.btAbort.setOnClickListener{}
@@ -81,6 +84,8 @@ class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
         fragment.txtGroup.visibility     = View.INVISIBLE
         fragment.txtUDA.visibility       = View.INVISIBLE
         fragment.btAbort.visibility      = View.INVISIBLE
+        fragment.txtUrl.visibility       = View.VISIBLE
+
     }
 }
 
@@ -90,6 +95,8 @@ class NoSession(frg:MainFragment, res:Resources):State(frg,res){
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_idle), res.getString(R.string.action_idle))
 
     override fun setButtonAction(){
+        super.setButtonAction()
+
         fragment.btAction.setOnClickListener{
             fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET, "")
             fragment.stopPolling()
@@ -114,6 +121,8 @@ class WaitApp(frg:MainFragment, res:Resources):State(frg,res){
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_wait_app), res.getString(R.string.action_wait_app))
 
     override fun setButtonAction(){
+        super.setButtonAction()
+
         fragment.btAction.setOnClickListener{
             fragment.insertGroupID(fragment.spGroup.selectedItemPosition+1)
         }
@@ -171,6 +180,8 @@ class ReachUda(frg:MainFragment, res:Resources):State(frg,res){
 
     @SuppressLint("SetTextI18n")
     override fun setUITexts(data:String){
+        super.setUITexts(data)
+
         fragment.txtStatus.text         = message.first + " " + data
         fragment.txtUDA.text            = data
 
@@ -318,11 +329,23 @@ class ErrorUDA(frg:MainFragment, res:Resources):State(frg,res){
 // 21
 class ErrorApp(frg:MainFragment, res:Resources):State(frg,res){
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_error_app), res.getString(R.string.action_error_app))
+
+    @SuppressLint("SetTextI18n")
+    override fun setUITexts(data: String) {
+        super.setUITexts(data)
+        fragment.txtStatus.text = "${fragment.txtStatus.text}\n$data"
+    }
 }
 
 // 22
 class ErrorServer(frg:MainFragment, res:Resources):State(frg,res){
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_error_srv), res.getString(R.string.action_error_srv))
+
+    @SuppressLint("SetTextI18n")
+    override fun setUITexts(data: String) {
+        super.setUITexts(data)
+        fragment.txtStatus.text = "${fragment.txtStatus.text}\n$data"
+    }
 }
 
 // 1003 RECEIVED_UDA_ID, used only to save uda_id when the app reconnect on an already open session
@@ -330,8 +353,10 @@ class ReConnected(frg:MainFragment, res:Resources):State(frg,res){
 
     override var message:Pair<String, String>   = Pair(res.getString(R.string.status_reconnected), res.getString(R.string.action_reconnected))
 
+    @SuppressLint("SetTextI18n")
     override fun setUITexts(data:String){
-        fragment.txtStatus.text         = message.first + " " + data
+        super.setUITexts(data)
+        fragment.txtStatus.text         = "${message.first} $data"
         fragment.txtUDA.text            = data
 
         fragment.btAction.visibility    = View.INVISIBLE
