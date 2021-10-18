@@ -81,6 +81,7 @@ class MainFragment : BaseFragment(
         const val NO_ACTION = -2
 
         @JvmStatic val TARGET_FRAGMENT_ANSWER_REQUEST: String = "TARGET_FRAGMENT_ANSWER_REQUEST"
+        @JvmStatic val TARGET_FRAGMENT_PAUSE_REQUEST: String = "TARGET_FRAGMENT_PAUSE_REQUEST"
 
         const val ERROR_QUESTION_EMPTY      = 1000
         const val ERROR_ANSWERS_EMPTY       = 1001
@@ -95,7 +96,11 @@ class MainFragment : BaseFragment(
     override val LOG_TAG = MainFragment::class.java.simpleName
 
     val viewModel:StatusVM by activityViewModels { viewModelFactory }
-    private val viewModelFactory    = StatusVM.Factory(this, null, DependenciesProviderParam.getInstance(URL).remoteConnector)
+
+    private val remoteConnector: RemoteConnector = RemoteConnector()
+
+//    private val viewModelFactory    = StatusVM.Factory(this, null, DependenciesProviderParam.getInstance(URL).remoteConnector)
+    private val viewModelFactory    = StatusVM.Factory(this, null, remoteConnector)
     private var mStatus:Int         = NO_STATUS
 
     private var isPolling:Boolean   = false     // this var is needed because stop polling takes time.
@@ -218,7 +223,7 @@ class MainFragment : BaseFragment(
 
         if(checkConnection()){
             isPolling = true
-            viewModel.startPolling()
+            viewModel.startPolling(txtUrl.text.toString())
         }
     }
 
@@ -244,11 +249,13 @@ class MainFragment : BaseFragment(
         mAnswerDF?.show(parentFragmentManager, "Inserisci Risposta")
 
         requireActivity().supportFragmentManager.setFragmentResultListener(TARGET_FRAGMENT_ANSWER_REQUEST, viewLifecycleOwner) { requestKey, bundl ->
-            if(requestKey == TARGET_FRAGMENT_ANSWER_REQUEST){
-                val answer = bundl.getString("answer") ?: ""
-                put(DATA_SENT, answer)
-                mAnswerDF = null
-            }
+            val answer = bundl.getString("answer") ?: ""
+            put(DATA_SENT, answer)
+            mAnswerDF = null
+        }
+        requireActivity().supportFragmentManager.setFragmentResultListener(TARGET_FRAGMENT_PAUSE_REQUEST, viewLifecycleOwner) { requestKey, bundl ->
+            put(PAUSE)
+            mAnswerDF = null
         }
     }
     //endregion======================================================================
@@ -271,6 +278,10 @@ class MainFragment : BaseFragment(
             return false
         }
         return true
+    }
+
+    public fun getUrl():String{
+        return txtUrl.text.toString()
     }
     //endregion======================================================================
 }

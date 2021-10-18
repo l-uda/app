@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
                     .setTitle(resources.getString(R.string.close_alert))
                     .setMessage(resources.getString(R.string.close_app_message))
                     .setCancelable(false)
-                    .setPositiveButton(resources.getString(R.string.yes), { dialog, i -> finish() })
+                    .setPositiveButton(resources.getString(R.string.yes)) { _, _ -> finish() }
                     .setNegativeButton(resources.getString(R.string.no), null)
                     .show()
             }

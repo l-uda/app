@@ -50,7 +50,6 @@
         android:layout_width="49dp"
         android:layout_height="40dp"
         android:layout_marginTop="48dp"
-        android:layout_marginEnd="16dp"
         android:text=""
         android:textAlignment="center"
         android:textSize="24sp"
@@ -72,7 +71,7 @@
         android:id="@+id/spGroup"
         android:layout_width="140dp"
         android:layout_height="48dp"
-        android:layout_marginTop="436dp"
+        android:layout_marginTop="564dp"
         android:textAlignment="viewEnd"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -82,7 +81,6 @@
         android:id="@+id/textView"
         android:layout_width="71dp"
         android:layout_height="40dp"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="48dp"
         android:text="UDA: "
         android:textAlignment="textEnd"
@@ -94,11 +92,35 @@
         android:id="@+id/txtUrl"
         android:layout_width="690dp"
         android:layout_height="48dp"
-        android:layout_marginEnd="28dp"
         android:layout_marginBottom="16dp"
         android:ems="10"
         android:inputType="textPersonName"
         android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btAction2"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="338dp"
+        android:layout_height="94dp"
+        android:layout_marginTop="52dp"
+        android:text="Button"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btAction" />
+
+    <Button
+        android:id="@+id/btAbort"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="179dp"
+        android:layout_height="97dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginBottom="16dp"
+        android:textSize="24sp"
+        android:text="ABORT"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

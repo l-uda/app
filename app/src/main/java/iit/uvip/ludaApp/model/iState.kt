@@ -5,6 +5,7 @@ import android.content.res.Resources
 import android.view.View
 import iit.uvip.ludaApp.R
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESET
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESTART
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.STATUS_SUCCESS
 import iit.uvip.ludaApp.view.MainFragment
 import kotlinx.android.synthetic.main.fragment_main.*
@@ -28,6 +29,13 @@ abstract class State(val fragment: MainFragment, val res:Resources) {
     open fun setButtonAction(){
         if(mPressStatus == MainFragment.NO_ACTION)  fragment.btAction.setOnClickListener{}
         else                                        fragment.btAction.setOnClickListener{ fragment.put(mPressStatus, "") }
+
+        fragment.btAction2.setOnClickListener{}
+
+        fragment.btAbort.setOnClickListener{
+            fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET, "")
+            fragment.stopPolling()
+        }
     }
 
     open fun setUITexts(data:String=""){
@@ -48,6 +56,9 @@ abstract class State(val fragment: MainFragment, val res:Resources) {
         fragment.txtUDA.visibility       = View.VISIBLE
 
         fragment.spGroup.visibility      = View.INVISIBLE
+
+        fragment.btAction2.visibility    = View.INVISIBLE
+        fragment.btAbort.visibility      = View.VISIBLE
     }
 }
 
@@ -58,9 +69,9 @@ class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_start), res.getString(R.string.action_start))
 
     override fun setButtonAction(){
-        fragment.btAction.setOnClickListener{
-            fragment.startPolling()
-        }
+        fragment.btAction.setOnClickListener{ fragment.startPolling() }
+
+        fragment.btAbort.setOnClickListener{}
     }
 
     override fun setComponentsVisibility(data:String){
@@ -69,6 +80,7 @@ class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
         fragment.txtStatus.visibility    = View.VISIBLE
         fragment.txtGroup.visibility     = View.INVISIBLE
         fragment.txtUDA.visibility       = View.INVISIBLE
+        fragment.btAbort.visibility      = View.INVISIBLE
     }
 }
 
@@ -82,12 +94,15 @@ class NoSession(frg:MainFragment, res:Resources):State(frg,res){
             fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET, "")
             fragment.stopPolling()
         }
+
+        fragment.btAbort.setOnClickListener{}
     }
 
     override fun setComponentsVisibility(data:String) {
         super.setComponentsVisibility(data)
         fragment.txtGroup.visibility     = View.INVISIBLE
         fragment.txtUDA.visibility       = View.INVISIBLE
+        fragment.btAbort.visibility      = View.INVISIBLE
     }
 }
 
@@ -101,6 +116,11 @@ class WaitApp(frg:MainFragment, res:Resources):State(frg,res){
     override fun setButtonAction(){
         fragment.btAction.setOnClickListener{
             fragment.insertGroupID(fragment.spGroup.selectedItemPosition+1)
+        }
+
+        fragment.btAbort.setOnClickListener{
+            fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET, "")
+            fragment.stopPolling()
         }
     }
 
@@ -190,6 +210,18 @@ class Paused(frg:MainFragment, res:Resources):State(frg,res){
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_paused), res.getString(R.string.action_paused))
 
     override var mPressStatus:Int = RemoteConnector.RESUME
+
+    override fun setComponentsVisibility(data:String){
+        super.setComponentsVisibility(data)
+
+        fragment.btAction2.visibility   = View.VISIBLE
+        fragment.btAction2.text         = res.getString(R.string.text_ricomincia)
+    }
+
+    override fun setButtonAction(){
+        super.setButtonAction()
+        fragment.btAction2.setOnClickListener{ fragment.put(RESTART, "") }
+    }
 }
 
 // 10
@@ -213,7 +245,6 @@ class Restart(frg:MainFragment, res:Resources):State(frg,res){
 }
 
 //14
-
 /*
 put(uda_id, WAIT_DATA, data)
 data = {"answer": " testo domanda", "input_type": v}
@@ -227,9 +258,8 @@ la uda poi riceve nel suo get : DATA_SENT, data
 con data= "il testo inserito | il numero immesso | il testo del pulsante premuto"
 
  */
-
 class WaitData(frg:MainFragment, res:Resources):State(frg,res){
-    override var message:Pair<String, String> = Pair(res.getString(R.string.status_wait_data), res.getString(R.string.action_wait_data))
+    override var message:Pair<String, String> = Pair("","")   //(res.getString(R.string.status_wait_data), res.getString(R.string.action_wait_data))
 
     override var mPressStatus:Int = RemoteConnector.DATA_SENT
 

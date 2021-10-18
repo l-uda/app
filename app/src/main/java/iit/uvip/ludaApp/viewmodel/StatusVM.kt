@@ -98,8 +98,8 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
     //======================================================================
     // polling
     //======================================================================
-    fun startPolling() {
-        remoteConnector.startPolling(groupId)
+    fun startPolling(url:String) {
+        remoteConnector.startPolling(url)
     }
 
     fun stopPolling() {
@@ -108,11 +108,7 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
         statusId = RESET
     }
     //======================================================================
-    class Factory(
-        owner: SavedStateRegistryOwner,
-        defaultState: Bundle?,
-        private val remoteConnector: RemoteConnector
-    ) : AbstractSavedStateViewModelFactory(owner, defaultState) {
+    class Factory(owner: SavedStateRegistryOwner, defaultState: Bundle?, private val remoteConnector: RemoteConnector) : AbstractSavedStateViewModelFactory(owner, defaultState) {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel?> create(key: String, modelClass: Class<T>, handle: SavedStateHandle): T {
             return StatusVM(handle, remoteConnector) as T

@@ -39,10 +39,19 @@ class AnswerTextDF: DialogFragment() {
                             showToast("Inserisci la risposta", requireContext(), Toast.LENGTH_LONG)
             else            sendResult(txtAnswer.text.toString())
         }
+
+        btPause.setOnClickListener{
+            sendPause()
+        }
     }
 
     private fun sendResult(answer:String) {
         requireActivity().supportFragmentManager.setFragmentResult(MainFragment.TARGET_FRAGMENT_ANSWER_REQUEST, bundleOf(Pair("answer", answer)))
+        dismiss()
+    }
+
+    private fun sendPause() {
+        requireActivity().supportFragmentManager.setFragmentResult(MainFragment.TARGET_FRAGMENT_PAUSE_REQUEST, Bundle())
         dismiss()
     }
 }

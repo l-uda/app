@@ -35,12 +35,14 @@ class AnswerButtonsDF: DialogFragment() {
         val arr = json?.getArrayOrNull("input_type")
 
         if(arr != null) {
-
-              for (a in 0 until arr.length()) {
+            for(a in 0 until arr.length()) {
                 val answ = arr.get(a) as String
                 createButtonDynamically(layout, answ)
                 answers.add(answ)
             }
+        }
+        btPause.setOnClickListener {
+            sendPause()
         }
     }
 
@@ -48,10 +50,11 @@ class AnswerButtonsDF: DialogFragment() {
         // creating the button
         val dynamicButton = Button(context)
         // setting layout_width and layout_height using layout parameters
-        dynamicButton.layoutParams = LinearLayout.LayoutParams(250,100)
-
+        dynamicButton.layoutParams = LinearLayout.LayoutParams(700,60)
+        (dynamicButton.layoutParams as LinearLayout.LayoutParams).setMargins(0, 20, 0, 20);
+        dynamicButton.setTextColor(Color.WHITE)
+        dynamicButton.setBackgroundColor(resources.getColor(R.color.colorAccent))
         dynamicButton.text = text
-        dynamicButton.setBackgroundColor(Color.GREEN)
         dynamicButton.setOnClickListener {
             sendResult((it as Button).text as String)
         }
@@ -61,6 +64,11 @@ class AnswerButtonsDF: DialogFragment() {
 
     private fun sendResult(answer:String) {
         requireActivity().supportFragmentManager.setFragmentResult(MainFragment.TARGET_FRAGMENT_ANSWER_REQUEST, bundleOf(Pair("answer", answer)))
+        dismiss()
+    }
+
+    private fun sendPause() {
+        requireActivity().supportFragmentManager.setFragmentResult(MainFragment.TARGET_FRAGMENT_PAUSE_REQUEST, Bundle())
         dismiss()
     }
 }

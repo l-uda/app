@@ -2,17 +2,18 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    style="Widget.AppCompat.Button.Colored"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/txtQuestion"
-        android:layout_width="286dp"
-        android:layout_height="65dp"
+        android:layout_width="868dp"
+        android:layout_height="139dp"
         android:layout_marginTop="72dp"
+        android:background="@drawable/edit_text_border"
         android:text=""
         android:textSize="26sp"
-        android:background="@drawable/edit_text_border"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
@@ -20,24 +21,43 @@
 
     <EditText
         android:id="@+id/txtAnswer"
-        android:layout_width="284dp"
-        android:layout_height="66dp"
+        android:layout_width="824dp"
+        android:layout_height="71dp"
         android:layout_marginTop="68dp"
-        android:textSize="26sp"
         android:background="@drawable/edit_text_border"
+        android:textSize="26sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtQuestion"/>
+        app:layout_constraintTop_toBottomOf="@+id/txtQuestion"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <Button
         android:id="@+id/btSubmit"
+        style="Widget.AppCompat.Button.Colored"
         android:layout_width="286dp"
         android:layout_height="71dp"
-        android:layout_marginTop="76dp"
+        android:layout_marginTop="68dp"
+        android:backgroundTint="@color/colorAccent"
         android:text="INVIA"
+        android:textColor="@android:color/white"
+        android:textColorLink="@color/colorAccent"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtAnswer" />
+
+    <Button
+        android:id="@+id/btPause"
+        android:layout_width="281dp"
+        android:layout_height="85dp"
+        android:layout_marginTop="56dp"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:text="@string/action_started"
+        android:textColor="@android:color/white"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btSubmit" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

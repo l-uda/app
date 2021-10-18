@@ -100,6 +100,7 @@
     <string name="status_reconnected">Riconnesso, attendi nuovo status</string>
     <string name="action_reconnected"/>
 
+    <string name="text_ricomincia">ricomincia</string>
 
 
     <string-array name="groups_array">

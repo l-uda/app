@@ -7,7 +7,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
-class RemoteConnector(private val service: UdaService){
+class RemoteConnector{
 
     val newServerEvent = PublishRelay.create<Status>()
 
@@ -16,6 +16,8 @@ class RemoteConnector(private val service: UdaService){
 
     private var lastSentStatus:Int  = IDLE
     private var groupId:Int         = -1
+
+    private var service:UdaService? = null
 
     companion object {
 
@@ -63,8 +65,10 @@ class RemoteConnector(private val service: UdaService){
     //============================================================================================
     // MANAGE POLLING
     //============================================================================================
-    fun startPolling(grp_id: Int){
-        groupId = grp_id
+    fun startPolling(url: String){
+
+        service = UdaService.create(url)
+
         disposableTimer = Observable.interval(1000, 1000, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe( { aLong: Long           -> getStatus(groupId) },
@@ -80,20 +84,20 @@ class RemoteConnector(private val service: UdaService){
     // GET STATUS
     //============================================================================================
     private fun getStatus(luda_id: Int) {
-        disposable = service.getStatus(luda_id)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe( { result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: IDLE, result.data)) },
+        disposable = service?.getStatus(luda_id)
+            ?.subscribeOn(Schedulers.io())
+            ?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribe( { result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: IDLE, result.data)) },
                         { error  -> processError(STATUS_ERROR, STATUS_ERROR, error.message) })
     }
     //============================================================================================
     // PUT STATUS / DATA
     //============================================================================================
     fun setGroupID(grp_id: Int) {
-        disposable = service.putStatus(grp_id, GROUP_SENT)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(
+        disposable = service?.putStatus(grp_id, GROUP_SENT)
+            ?.subscribeOn(Schedulers.io())
+            ?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribe(
                 {
                     run {
                         groupId = grp_id
@@ -106,10 +110,10 @@ class RemoteConnector(private val service: UdaService){
     //============================================================================================
     fun put(grp_id: Int, status:Int, data:String = ""){
         lastSentStatus = status
-        disposable = service.putStatus(grp_id, status, data)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe( { result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: -1, result.data)) },
+        disposable = service?.putStatus(grp_id, status, data)
+            ?.subscribeOn(Schedulers.io())
+            ?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribe( { result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: -1, result.data)) },
                         { error ->  processError(STATUS_ERROR, lastSentStatus, error.message) })
     }
     //============================================================================================

@@ -15,5 +15,5 @@
 .cxx
 ludaApp/.idea
 buildSrc/build/
-.idea/
+/.idea
 
