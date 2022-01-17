@@ -43,6 +43,8 @@ android {
         }
         create("production") {
             dimension = "version"
+            applicationIdSuffix = ".production"
+            versionNameSuffix = "-production"
             buildConfigField("String", "server_url", "\"http://192.168.1.100:80/luda01\"")
         }
     }
