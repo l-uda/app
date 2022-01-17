@@ -69,7 +69,7 @@ class RemoteConnector{
 
         service = UdaService.create(url)
 
-        disposableTimer = Observable.interval(1000, 1000, TimeUnit.MILLISECONDS)
+        disposableTimer = Observable.interval(200, 200, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe( { aLong: Long           -> getStatus(groupId) },
                         { throwable: Throwable  -> processError(TIMER_ERROR, TIMER_ERROR, throwable.message) })
@@ -101,8 +101,9 @@ class RemoteConnector{
                 {
                     run {
                         groupId = grp_id
-                        newServerEvent.accept(Status(STATUS_SUCCESS, GROUP_SENT, grp_id.toString()))
-                        newServerEvent.accept(Status(STATUS_SUCCESS, RECEIVED_UDA_ID, it.data))
+                        newServerEvent.accept(Status(STATUS_SUCCESS, GROUP_SENT, it.data))
+//                        newServerEvent.accept(Status(STATUS_SUCCESS, GROUP_SENT, grp_id.toString()))
+//                        newServerEvent.accept(Status(STATUS_SUCCESS, RECEIVED_UDA_ID, it.data))
                     }
                 },
                 { error ->  processError(STATUS_ERROR, GROUP_SENT, error.message) })

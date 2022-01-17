@@ -43,7 +43,7 @@ android {
         }
         create("production") {
             dimension = "version"
-            buildConfigField("String", "server_url", "\"http://localhost:333\"")
+            buildConfigField("String", "server_url", "\"http://192.168.1.100:80/luda01\"")
         }
     }
 
@@ -55,6 +55,12 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
+    packagingOptions {
+        exclude("META-INF/DEPENDENCIES")
+        exclude("META-INF/NOTICE.md")
+        exclude("META-INF/LICENSE.md")
     }
 }
 

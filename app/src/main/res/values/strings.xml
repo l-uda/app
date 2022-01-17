@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">App LUDA</string>
+    <string name="app_name">L\'UDA</string>
 
 
     <string name="warning">Attenzione</string>
@@ -26,28 +26,29 @@
     <string name="bt_action_label_stop">Interrompi</string>
 
 
-    <string name="status_start">Premi Inizia per registrare il tuo dispositivo</string>
+    <string name="status_start">\n\nCIAO!! Sei pronto per iniziare questa splendida avventura?\n\nPremi INIZIA per registrare il tuo dispositivo</string>
     <string name="action_start">inizia</string>
 
     <!--    messaggi stati -->
 
-    <string name="status_idle">non c\'è nessuna sessione attiva</string>
+    <string name="status_idle">Ma quanta fretta!! Il gioco non è ancora iniziato.\n\nDovrai attendere ancora un pò.</string>
     <string name="action_idle">interrompi ricerca</string>
 
-    <string name="status_wait_app">inserisci il codice del tuo gruppo</string>
-    <string name="action_wait_app">invia</string>
+    <string name="status_wait_app">Eccoci!! l’avventura sta per iniziare\n\n seleziona il numero del tuo gruppo e premi INVIO
+</string>
+    <string name="action_wait_app">invio</string>
 
     <string name="status_group_sent">codice inviato…aspetta</string>
     <string name="action_group_sent" />
 
-    <string name="status_reach_uda">Raggiungi la UDA numero: </string>
-    <string name="action_reach_uda">conferma</string>
+    <string name="status_reach_uda">OTTIMO LAVORO ESPLORATORE!\nper portare a termine la tua avventura\nraggiungi la postazione lampeggiante\n\nTutto chiaro? Clicca \"GO!\" e parti</string>
+    <string name="action_reach_uda">GO!</string>
 
-    <string name="status_reaching_uda">stai raggiungendo la tua UDA</string>
-    <string name="action_reaching_uda">pronto per iniziare</string>
+    <string name="status_reaching_uda">\n\n\nFATTO? Quando arrivi premi il tasto START.</string>
+    <string name="action_reaching_uda">START</string>
 
-    <string name="status_ready">aspetta che l\'attività venga fatta partire</string>
-    <string name="action_ready">interrompi</string>
+    <string name="status_ready">\nbene! stiamo per iniziare, solo qualche istante\naspettiamo che anche gli altri gruppi siano pronti....</string>
+    <string name="action_ready">Non sono pronto</string>
 
     <string name="status_started">UDA in corso</string>
     <string name="action_started">pausa</string>
@@ -76,7 +77,7 @@
     <string name="status_aborted">UDA interrotta</string>
     <string name="action_aborted"/>
 
-    <string name="status_completed">la UDA è finita, attendi che di sapere quale è la prossima</string>
+    <string name="status_completed">\n\nla UDA è finita\nattendi che di sapere quale sia la prossima</string>
     <string name="action_completed"/>
 
     <string name="status_finalized">hai finito tutte le uda, vai al portale</string>
@@ -100,15 +101,15 @@
     <string name="status_reconnected">Riconnesso, attendi nuovo status</string>
     <string name="action_reconnected"/>
 
-    <string name="text_ricomincia">ricomincia</string>
+    <string name="text_ricomincia">ricomincia la UDA</string>
 
 
     <string-array name="groups_array">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
+        <item>gruppo 1</item>
+        <item>gruppo 2</item>
+        <item>gruppo 3</item>
+        <item>gruppo 4</item>
+        <item>gruppo 5</item>
     </string-array>
 
     <string name="tts_language_notsupported">The Language specified is not supported!</string>

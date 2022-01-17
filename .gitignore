@@ -17,3 +17,5 @@ ludaApp/.idea
 buildSrc/build/
 /.idea
 
+/.idea/
+/.idea/codeStyles/

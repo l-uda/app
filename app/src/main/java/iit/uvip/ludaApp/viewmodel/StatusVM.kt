@@ -1,6 +1,7 @@
 package iit.uvip.ludaApp.viewmodel
 
 import android.os.Bundle
+import android.util.Log
 import androidx.lifecycle.*
 import androidx.savedstate.SavedStateRegistryOwner
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -9,6 +10,7 @@ import io.reactivex.rxkotlin.addTo
 
 import iit.uvip.ludaApp.model.RemoteConnector
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.ERROR_SERVER
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.GROUP_SENT
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.IDLE
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESET
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.STATUS_ERROR
@@ -16,6 +18,7 @@ import iit.uvip.ludaApp.model.RemoteConnector.Companion.STATUS_SUCCESS
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.WAIT_APP
 import iit.uvip.ludaApp.model.Status
 import iit.uvip.ludaApp.view.MainFragment.Companion.ERROR_APP_NOT_ASSOCIATED
+import java.net.IDN
 
 // here I check whether new status is different from current one
 // in that case, I change status (which is a MutableLiveData<Status> observed in the GUI)
@@ -54,10 +57,18 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe {
             if(it.result == STATUS_SUCCESS) {
+
+                // when I start polling I set statusID=IDLE, when I press abort from UI
+                // I call stopPolling and set statusId=RESET to prevent any further status update
+                if(statusId == RESET) return@subscribe
+
                 if (it.status != statusId) {                // I change status.value only when a NEW STATUS is RECEIVED
 
-                    if(it.status > IDLE && groupId == -1)   // c'è una sessione in corso, ma l'app non è collegata a nessun gruppo => chiedi associazione
+                    if(it.status > IDLE && groupId == -1) {   // c'è una sessione in corso, ma l'app non è collegata a nessun gruppo => chiedi associazione
+                        Log.d("NEW_STATUS_WM", "$statusId -> ${it.status} -> $WAIT_APP")
                         it.status = WAIT_APP
+                    }
+                    else    Log.d("NEW_STATUS_WM", "$statusId -> ${it.status}")
 
                     statusId        = it.status
                     status.value    = it
@@ -84,9 +95,11 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
         remoteConnector.put(grp_id, status_code, data)
     }
 
+    // WAIT_APP state propose a groupId
     fun setGroupID(grp_id:Int){
         groupId = grp_id
         remoteConnector.setGroupID(grp_id)
+//        remoteConnector.put(grp_id, GROUP_SENT)
     }
 
     //======================================================================
@@ -99,6 +112,7 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
     // polling
     //======================================================================
     fun startPolling(url:String) {
+        statusId = IDLE
         remoteConnector.startPolling(url)
     }
 

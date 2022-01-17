@@ -9,21 +9,18 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
-import androidx.navigation.ui.setupActionBarWithNavController
-import com.intentfilter.androidpermissions.PermissionManager
-import com.intentfilter.androidpermissions.models.DeniedPermissions
 import kotlinx.android.synthetic.main.activity_main.*
 import org.albaspazio.core.fragments.BaseFragment
-import org.albaspazio.core.fragments.iNavigated
-import java.util.*
 
 
 class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedListener {
@@ -35,7 +32,17 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     // This will be called whenever an Intent with an action named "NAVIGATION_UPDATE" is broadcasted.
     private val mMessageReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
-            if(intent.action == "NAVIGATION_UPDATE") refreshNavigationVisibility()
+            when(intent.action) {
+                "NAVIGATION_UPDATE" -> refreshNavigationVisibility()
+                "GROUP_UPDATE"  -> {
+                    val text = intent.getStringExtra("data")
+                    refreshActionBarGroup(text ?: "error")
+                }
+                "SUBJECT_UPDATE"  -> {
+                    val text = intent.getStringExtra("data")
+                    refreshActionBarSubject(text ?: "error")  // supportActionBar?.title = text
+                }
+            }
         }
     }
 
@@ -43,7 +50,8 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        setupActionBarWithNavController(findNavController(R.id.my_nav_host_fragment))
+        setSupportActionBar(findViewById(R.id.my_toolbar))
+//        setupActionBarWithNavController(findNavController(R.id.my_nav_host_fragment))
         findNavController(R.id.my_nav_host_fragment).addOnDestinationChangedListener(this)
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
@@ -58,8 +66,9 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
     override fun onResume() {
         super.onResume()
-        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(mMessageReceiver, IntentFilter("NAVIGATION_UPDATE"))
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, IntentFilter("NAVIGATION_UPDATE"))
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, IntentFilter("GROUP_UPDATE"))
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, IntentFilter("SUBJECT_UPDATE"))
     }
 
     override fun onSupportNavigateUp() = findNavController(R.id.my_nav_host_fragment).navigateUp()
@@ -86,6 +95,18 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             actionBar?.show()
             supportActionBar?.show()
         }
+    }
+
+    fun refreshActionBarGroup(text:String){
+        val toolbar = findViewById<Toolbar>(R.id.my_toolbar)
+        val toolbarGroup = toolbar.findViewById<TextView>(R.id.toolbarGroup)
+        toolbarGroup.text = text
+    }
+
+    fun refreshActionBarSubject(text:String){
+        val toolbar = findViewById<Toolbar>(R.id.my_toolbar)
+        val toolbarSubject = toolbar.findViewById<TextView>(R.id.toolbarSubject)
+        toolbarSubject.text = text
     }
 
     override fun onBackPressed() {
