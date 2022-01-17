@@ -39,13 +39,13 @@ android {
             dimension = "version"
             applicationIdSuffix = ".stage"
             versionNameSuffix = "-stage"
-            buildConfigField("String", "server_url", "\"https://www.sagosoft.it/_API_/cpim/luda/www/luda_20210111_1500\"")
+            buildConfigField("String", "server_url", "\"https://www.sagosoft.it/_API_/cpim/luda/www/luda_20210111_1500/api/app/\"")
         }
         create("production") {
             dimension = "version"
             applicationIdSuffix = ".production"
             versionNameSuffix = "-production"
-            buildConfigField("String", "server_url", "\"http://192.168.1.100:80/luda01\"")
+            buildConfigField("String", "server_url", "\"http://192.168.1.250:80/luda01/api/app/\"")
         }
     }
 

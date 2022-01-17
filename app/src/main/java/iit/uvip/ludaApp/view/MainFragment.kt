@@ -45,6 +45,7 @@ import iit.uvip.ludaApp.model.RemoteConnector.Companion.STATUS_SUCCESS
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.WAIT_SERVER
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
+import iit.uvip.ludaApp.BuildConfig.server_url
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -206,7 +207,7 @@ class MainFragment : BaseFragment(
 
         initGroupsSpinner()
         setupObserver()
-        txtUrl.setText(URL)
+        txtUrl.setText(server_url)
         completedUDAsViews = listOf(ivUda1Completed, ivUda2Completed, ivUda3Completed, ivUda4Completed, ivUda5Completed)
         isPolling = true    // to set init status I enable status-updating in the observer
         viewModel.status.value = Status(STATUS_SUCCESS, RESET, "")
