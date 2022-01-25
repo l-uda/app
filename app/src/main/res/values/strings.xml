@@ -26,7 +26,7 @@
     <string name="bt_action_label_stop">Interrompi</string>
 
 
-    <string name="status_start">\n\nCIAO!! Sei pronto per iniziare questa splendida avventura?\n\nPremi INIZIA per registrare il tuo dispositivo</string>
+    <string name="status_start">\nCIAO!! Sei pronto per iniziare questa splendida avventura?\n\nPremi INIZIA per registrare il tuo dispositivo</string>
     <string name="action_start">Inizia</string>
 
     <!--    messaggi stati -->

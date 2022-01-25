@@ -1,12 +1,13 @@
 package iit.uvip.ludaApp.view
 
-import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.LinearLayout
+import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import iit.uvip.ludaApp.R
@@ -24,6 +25,7 @@ class AnswerButtonsDF: DialogFragment() {
         return inflater.inflate(R.layout.fragment_button_answers, container)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -46,15 +48,19 @@ class AnswerButtonsDF: DialogFragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun createButtonDynamically(layout: LinearLayout, text:String) {
         // creating the button
         val dynamicButton = Button(context)
         // setting layout_width and layout_height using layout parameters
-        dynamicButton.layoutParams = LinearLayout.LayoutParams(700,60)
-        (dynamicButton.layoutParams as LinearLayout.LayoutParams).setMargins(0, 20, 0, 20);
-        dynamicButton.setTextColor(Color.WHITE)
-        dynamicButton.setBackgroundColor(resources.getColor(R.color.colorAccent))
+        dynamicButton.layoutParams = LinearLayout.LayoutParams(250,300)
+        (dynamicButton.layoutParams as LinearLayout.LayoutParams).setMargins(20, 20, 20, 20);
+        dynamicButton.setTextAppearance(requireActivity(), R.style.AnswerButton);
+//        dynamicButton.setTextColor(Color.WHITE)
+        dynamicButton.setBackgroundColor(resources.getColor(R.color.color1))
         dynamicButton.text = text
+
+        dynamicButton.typeface = resources.getFont(R.font.rubik_medium);
         dynamicButton.setOnClickListener {
             sendResult((it as Button).text as String)
         }

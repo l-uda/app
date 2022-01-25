@@ -58,7 +58,7 @@ abstract class State(val fragment: MainFragment, val res:Resources) {
     open fun setComponentsVisibility(data:String){
 
         fragment.txtStatus.visibility    = View.VISIBLE
-        fragment.btAbort.visibility      = View.VISIBLE
+        fragment.btAbort.visibility      = View.INVISIBLE
 //        fragment.txtGroup.visibility     = View.VISIBLE
 //        fragment.txtUDA.visibility       = View.VISIBLE
 
@@ -312,7 +312,7 @@ class Paused(frg:MainFragment, res:Resources):State(frg,res){
     override fun setComponentsVisibility(data:String){
         super.setComponentsVisibility(data)
 
-        fragment.btAction2.visibility   = View.VISIBLE
+        fragment.btAction2.visibility   = View.INVISIBLE
         fragment.btAction2.text         = res.getString(R.string.text_ricomincia)
     }
 
@@ -345,7 +345,7 @@ class Restart(frg:MainFragment, res:Resources):State(frg,res){
 //14
 /*
 put(uda_id, WAIT_DATA, data)
-data = {"answer": " testo domanda", "input_type": v}
+data = {"question": " testo domanda", "input_type": v}
 
 con v :
 ""                  = tastiera alfanumerica

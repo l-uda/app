@@ -2,10 +2,10 @@ object Configs {
 
     const val applicationId     = "iit.uvip.ludaApp"
     const val compileSdkVersion = 29
-    const val minSdkVersion     = 23
+    const val minSdkVersion     = 26
     const val targetSdkVersion  = 26
-    const val versionCode       = 5
-    const val versionName       = "0.2.0.5"
+    const val versionCode       = 6
+    const val versionName       = "0.2.1.6"
 }
 
 object Versions {

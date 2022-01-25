@@ -10,15 +10,13 @@
 
     <Button
         android:id="@+id/btAction"
-        style="@style/Widget.AppCompat.Button.Colored"
+        style="@style/ActiveButton"
         android:layout_width="348dp"
         android:layout_height="102dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="276dp"
         android:layout_marginEnd="8dp"
-        android:fontFamily="@font/sigmar_one"
         android:text="@string/bt_action_label_setgroup"
-        android:textColorLink="@color/colorAccent"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,12 +25,11 @@
 
     <TextView
         android:id="@+id/txtStatus"
+        style="@style/TitleLabel"
         android:layout_width="889dp"
         android:layout_height="280dp"
         android:layout_marginTop="72dp"
-        android:fontFamily="@font/rubik_medium"
         android:textAlignment="center"
-        android:textSize="28sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.578"
         app:layout_constraintStart_toStartOf="parent"
@@ -56,13 +53,11 @@
 
     <Button
         android:id="@+id/btAction2"
-        style="@style/Widget.AppCompat.Button.Colored"
+        style="@style/ActiveButton"
         android:layout_width="396dp"
         android:layout_height="86dp"
         android:layout_marginBottom="40dp"
-        android:fontFamily="@font/sigmar_one"
         android:text="Button"
-        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.038"

@@ -12,4 +12,38 @@
         <item name="android:windowBackground">@drawable/splash_background</item>
     </style>
 
+    <style name="ActiveButton">
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/sigmar_one</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:backgroundTint">@color/color1</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:padding">2dip</item>
+    </style>
+
+    <style name="AnswerButton">
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/rubik_medium</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:backgroundTint">@color/color1</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:padding">2dip</item>
+    </style>
+
+    <style name="InfoLabel">
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">@font/rubik_medium</item>
+        <item name="android:textColor">@color/color1</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:padding">2dip</item>
+    </style>
+
+    <style name="TitleLabel">
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily">@font/rubik_medium</item>
+        <item name="android:textColor">@color/color1</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:padding">2dip</item>
+    </style>
+
 </resources>
