@@ -38,5 +38,6 @@ data class StatusResult(var type: String = "",
                         var k:Int = -1,
                         var status:Any? = null,
                         var data: String = "",
+                        var uda_id: String = "",
                         var error: String? = null,
                         var description: String? = null)

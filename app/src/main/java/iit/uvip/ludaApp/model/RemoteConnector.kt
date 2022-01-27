@@ -1,5 +1,6 @@
 package iit.uvip.ludaApp.model
 
+import android.util.Log
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -25,6 +26,13 @@ class RemoteConnector{
         @JvmStatic val STATUS_ERROR         = 101    //
         @JvmStatic val TIMER_ERROR          = 102    //
 
+
+
+        @JvmStatic val GENERIC_ERROR        = 1000    //
+        @JvmStatic val USER_ALREADY_EXIST   = 1001    //
+
+
+
         // STATUS GET
 
         const val RESET         = -1    //  when server is rebooted or re-inited
@@ -42,10 +50,6 @@ class RemoteConnector{
         const val ERROR_UDA     = 20    //  status <- get(grpid)
         const val ERROR_SERVER  = 22    //  status <- get(grpid)
 
-        const val RECEIVED_UDA_ID = 103 // this is returned after a GROUP_SENT
-                                        // used to get associated uda when APP reconnect after a crash
-
-
         // STATUS PUT
         const val GROUP_SENT    = 2     //  ---> put(data , status)
         const val REACHING_UDA  = 4     //  ---> put(grpid, status)
@@ -62,13 +66,13 @@ class RemoteConnector{
 
 
     }
+
     //============================================================================================
-    // MANAGE POLLING
+    // PUBLIC FUNCTIONS
     //============================================================================================
     fun startPolling(url: String){
 
-        service = UdaService.create(url)
-
+        service         = UdaService.create(url)
         disposableTimer = Observable.interval(200, 200, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe( { aLong: Long           -> getStatus(groupId) },
@@ -80,53 +84,48 @@ class RemoteConnector{
         disposableTimer?.dispose()
         disposableTimer = null
     }
-    //============================================================================================
-    // GET STATUS
-    //============================================================================================
-    private fun getStatus(luda_id: Int) {
-        disposable = service?.getStatus(luda_id)
-            ?.subscribeOn(Schedulers.io())
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe( { result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: IDLE, result.data)) },
-                        { error  -> processError(STATUS_ERROR, STATUS_ERROR, error.message) })
+
+    fun clear(){
+        disposable?.dispose()
+        disposableTimer?.dispose()
+    }
+
+    fun put(grp_id: Int, status:Int, data:String = ""){
+        if(status == GROUP_SENT)    setGroupID(grp_id)
+        else {
+            lastSentStatus = status
+            disposable = service?.putStatus(grp_id, status, data)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: -1, result.uda_id.toInt(), result.data))},
+                            { error  -> processError(STATUS_ERROR, lastSentStatus, error.message) })
+        }
     }
     //============================================================================================
-    // PUT STATUS / DATA
-    //============================================================================================
-    fun setGroupID(grp_id: Int) {
-        disposable = service?.putStatus(grp_id, GROUP_SENT)
-            ?.subscribeOn(Schedulers.io())
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe(
-                {
+    // SET GROUP
+    private fun setGroupID(grp_id: Int) {
+        disposable = service?.putStatus(grp_id, GROUP_SENT)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
+                    ?.subscribe({
                     run {
+                        Log.d("REMOTE_CONN", "status: $it")
                         groupId = grp_id
-                        newServerEvent.accept(Status(STATUS_SUCCESS, GROUP_SENT, it.data))
-//                        newServerEvent.accept(Status(STATUS_SUCCESS, GROUP_SENT, grp_id.toString()))
-//                        newServerEvent.accept(Status(STATUS_SUCCESS, RECEIVED_UDA_ID, it.data))
+//                        newServerEvent.accept(Status(STATUS_SUCCESS, GROUP_SENT, it.uda_id.toInt(), it.data))
+                        newServerEvent.accept(Status(STATUS_SUCCESS, REACH_UDA, it.uda_id.toInt()))
                     }
                 },
                 { error ->  processError(STATUS_ERROR, GROUP_SENT, error.message) })
     }
     //============================================================================================
-    fun put(grp_id: Int, status:Int, data:String = ""){
-        lastSentStatus = status
-        disposable = service?.putStatus(grp_id, status, data)
-            ?.subscribeOn(Schedulers.io())
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe( { result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: -1, result.data)) },
-                        { error ->  processError(STATUS_ERROR, lastSentStatus, error.message) })
+    // GET STATUS
+    //============================================================================================
+    private fun getStatus(grp_id: Int) {
+        disposable = service?.getStatus(grp_id)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: IDLE, result.uda_id.toInt(), result.data)) },
+                        { error  -> processError(STATUS_ERROR, STATUS_ERROR, error.message) })
     }
     //============================================================================================
     // ACCESSORY
     //============================================================================================
     private fun processError(code:Int, status:Int, msg: String?){
-        newServerEvent.accept(Status(code, status, (msg ?: "")))
-    }
-
-    fun clear(){
-        disposable?.dispose()
-        disposableTimer?.dispose()
+        newServerEvent.accept(Status(code, status, -1, (msg ?: "")))
     }
     //============================================================================================
 }

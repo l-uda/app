@@ -54,62 +54,36 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
     // quando faccio INIT/REBOOT sul server lo status del server= 0, mentre ciascuna uda= -1
     init {
         remoteConnector.newServerEvent
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe {
-            if(it.result == STATUS_SUCCESS) {
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                if(it.result == STATUS_SUCCESS) {
 
-                // when I start polling I set statusID=IDLE, when I press abort from UI
-                // I call stopPolling and set statusId=RESET to prevent any further status update
-                if(statusId == RESET) return@subscribe
+                    // when I start polling I set statusID=IDLE, when I press abort from UI
+                    // I call stopPolling and set statusId=RESET to prevent any further status update
+                    if(statusId == RESET) return@subscribe
 
-                if (it.status != statusId) {                // I change status.value only when a NEW STATUS is RECEIVED
+                    if (it.status != statusId) {                // I change status.value only when a NEW STATUS is RECEIVED
 
-                    if(it.status > IDLE && groupId == -1) {   // c'è una sessione in corso, ma l'app non è collegata a nessun gruppo => chiedi associazione
-                        Log.d("NEW_STATUS_WM", "$statusId -> ${it.status} -> $WAIT_APP")
-                        it.status = WAIT_APP
+                        if(it.status > IDLE && groupId == -1) {   // c'è una sessione in corso, ma l'app non è collegata a nessun gruppo => chiedi associazione
+                            Log.d("NEW_STATUS_WM", "$statusId -> ${it.status} -> $WAIT_APP")
+                            it.status = WAIT_APP
+                        }
+                        else    Log.d("NEW_STATUS_WM", "$statusId -> ${it.status}")
+
+                        statusId        = it.status
+                        status.value    = it
                     }
-                    else    Log.d("NEW_STATUS_WM", "$statusId -> ${it.status}")
-
-                    statusId        = it.status
-                    status.value    = it
+                }
+                else{
+                    statusId        = ERROR_SERVER
+                    status.value    = Status(STATUS_ERROR, ERROR_SERVER, it.uda_id, it.data)
                 }
             }
-            else{
-                statusId        = ERROR_SERVER
-                status.value    = Status(STATUS_ERROR, ERROR_SERVER, it.data)
-            }
-        }
-        .addTo(disposable)
+            .addTo(disposable)
     }
 
     //======================================================================
-    // put
-    //======================================================================
-    fun put(grp_id: Int, status_code:Int, data:String = "") {
-
-        if(grp_id == -1){
-            statusId        = ERROR_APP_NOT_ASSOCIATED
-            status.value    = Status(STATUS_ERROR, statusId)
-            return
-        }
-        remoteConnector.put(grp_id, status_code, data)
-    }
-
-    // WAIT_APP state propose a groupId
-    fun setGroupID(grp_id:Int){
-        groupId = grp_id
-        remoteConnector.setGroupID(grp_id)
-//        remoteConnector.put(grp_id, GROUP_SENT)
-    }
-
-    //======================================================================
-    override fun onCleared() {
-        super.onCleared()
-        disposable.clear()
-        remoteConnector.clear()
-    }
-    //======================================================================
-    // polling
+    // PUBLIC
     //======================================================================
     fun startPolling(url:String) {
         statusId = IDLE
@@ -120,6 +94,25 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
         groupId = -1
         remoteConnector.stopPolling()
         statusId = RESET
+    }
+
+    fun put(grp_id: Int, status_code:Int, data:String = "") {
+        if(status_code == GROUP_SENT) groupId = grp_id
+        else {
+            if (grp_id == -1) {
+                statusId     = ERROR_APP_NOT_ASSOCIATED
+                status.value = Status(STATUS_ERROR, statusId)
+                return
+            }
+        }
+        remoteConnector.put(grp_id, status_code, data)
+    }
+
+    //======================================================================
+    override fun onCleared() {
+        super.onCleared()
+        disposable.clear()
+        remoteConnector.clear()
     }
     //======================================================================
     class Factory(owner: SavedStateRegistryOwner, defaultState: Bundle?, private val remoteConnector: RemoteConnector) : AbstractSavedStateViewModelFactory(owner, defaultState) {

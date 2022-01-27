@@ -38,7 +38,6 @@ import iit.uvip.ludaApp.model.RemoteConnector.Companion.ERROR_APP
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.ERROR_SERVER
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.ERROR_UDA
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.FINALIZED
-import iit.uvip.ludaApp.model.RemoteConnector.Companion.RECEIVED_UDA_ID
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESET
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.STATUS_ERROR
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.STATUS_SUCCESS
@@ -85,7 +84,7 @@ class MainFragment : BaseFragment(
     hideAndroidControls = false
 ){
 
-    private val URL = "https://www.sagosoft.it/_API_/cpim/luda/www/luda_20210111_1500/api/app/"
+    private val URL = server_url //"https://www.sagosoft.it/_API_/cpim/luda/www/luda_20210111_1500/api/app/"
 
     companion object {
         const val NO_STATUS = -2
@@ -126,7 +125,8 @@ class MainFragment : BaseFragment(
 
     var completedUDAsViews:List<ImageView> = listOf()
 
-    var mGroupId:Int = -1
+    var mGroupId:Int    = -1
+    var mSubGroupId:Int = -1
 
     private var mAnswerDF: DialogFragment?  = null
     private var mIsOnline:Boolean           = false
@@ -190,12 +190,12 @@ class MainFragment : BaseFragment(
                 mAnswerDF = null
                 Log.d("NEW_STATUS_MF", "${mStatus}")
                 mState = states[mStatus] ?: states[ERROR_SERVER]!!
-                mState.apply(data)
+                mState.apply(it)
             }
             catch (e:Exception){
                 mStatus = ERROR_APP
                 mState = states[mStatus] ?: states[ERROR_SERVER]!!
-                mState.apply(data)
+                mState.apply(it)
             }
         }
     }
@@ -207,10 +207,10 @@ class MainFragment : BaseFragment(
 
         initGroupsSpinner()
         setupObserver()
-        txtUrl.setText(server_url)
+        txtUrl.setText(URL)
         completedUDAsViews = listOf(ivUda1Completed, ivUda2Completed, ivUda3Completed, ivUda4Completed, ivUda5Completed)
         isPolling = true    // to set init status I enable status-updating in the observer
-        viewModel.status.value = Status(STATUS_SUCCESS, RESET, "")
+        viewModel.status.value = Status(STATUS_SUCCESS, RESET)
     }
 
     override fun onResume() {
@@ -234,14 +234,14 @@ class MainFragment : BaseFragment(
             return
         }
         mGroupId = grp_id
-        if(checkConnection())        viewModel.setGroupID(grp_id)
+        if(checkConnection())        viewModel.put(grp_id, GROUP_SENT)
     }
 
     fun startPolling(){
 
         if(checkConnection()){
             isPolling = true
-            viewModel.startPolling(txtUrl.text.toString())
+            viewModel.startPolling(URL)     // viewModel.startPolling(txtUrl.text.toString())
         }
     }
 
@@ -277,8 +277,6 @@ class MainFragment : BaseFragment(
         }
     }
     //endregion=====================================================================================
-
-
 
     //region STATES_CALLBACK =======================================================================
     public fun setUDASubject(subject:String){

@@ -24,10 +24,10 @@ abstract class State(val fragment: MainFragment, val res:Resources) {
     protected open var mPressStatus:Int = MainFragment.NO_ACTION
     protected open lateinit var message:Pair<String,String>
 
-    open fun apply(data:String="") {
-        setUITexts(data)
+    open fun apply(status:Status) {
+        setUITexts(status)
         setButtonAction()
-        setComponentsVisibility(data)
+        setComponentsVisibility(status)
     }
 
     open fun setButtonAction(){
@@ -37,12 +37,12 @@ abstract class State(val fragment: MainFragment, val res:Resources) {
         fragment.btAction2.setOnClickListener{}
 
         fragment.btAbort.setOnClickListener{
-            fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET, "")
+            fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET)
 //            fragment.stopPolling()
         }
     }
 
-    open fun setUITexts(data:String=""){
+    open fun setUITexts(status:Status){
         fragment.txtStatus.text = message.first
 
         if(message.second.isEmpty())
@@ -55,7 +55,7 @@ abstract class State(val fragment: MainFragment, val res:Resources) {
         fragment.txtUrl.visibility       = View.INVISIBLE
     }
 
-    open fun setComponentsVisibility(data:String){
+    open fun setComponentsVisibility(status:Status){
 
         fragment.txtStatus.visibility    = View.VISIBLE
         fragment.btAbort.visibility      = View.INVISIBLE
@@ -69,21 +69,19 @@ abstract class State(val fragment: MainFragment, val res:Resources) {
     }
 }
 
-
 // -1: RESET:  abort invisible
 class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
 
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_start), res.getString(R.string.action_start))
 
-    override fun apply(data:String) {
-        super.apply(data)
+    override fun apply(status:Status) {
+        super.apply(status)
         fragment.stopPolling()
         fragment.stopBlinking(false)
     }
 
-
-    override fun setUITexts(data:String){
-        super.setUITexts(data)
+    override fun setUITexts(status:Status){
+        super.setUITexts(status)
 
         val intent = Intent("GROUP_UPDATE")
         intent.putExtra("data", "NON REGISTRATO")
@@ -91,7 +89,6 @@ class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
 
         fragment.txtGroup.text = "NON REGISTRATO"
     }
-
 
     override fun setButtonAction(){
         super.setButtonAction()
@@ -104,8 +101,8 @@ class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
 //        }
     }
 
-    override fun setComponentsVisibility(data:String){
-        super.setComponentsVisibility(data)
+    override fun setComponentsVisibility(status:Status){
+        super.setComponentsVisibility(status)
 
         fragment.txtStatus.visibility    = View.VISIBLE
         fragment.txtGroup.visibility     = View.INVISIBLE
@@ -121,8 +118,8 @@ class NoSession(frg:MainFragment, res:Resources):State(frg,res){
 
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_idle), res.getString(R.string.action_idle))
 
-    override fun setUITexts(data:String){
-        super.setUITexts(data)
+    override fun setUITexts(status:Status){
+        super.setUITexts(status)
 
         val intent = Intent("GROUP_UPDATE")
         intent.putExtra("data", "NON REGISTRATO")
@@ -137,14 +134,14 @@ class NoSession(frg:MainFragment, res:Resources):State(frg,res){
         // do the same things as btAbort
         fragment.btAction.setOnClickListener{
 //            fragment.stopPolling()
-            fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET, "")
+            fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET)
         }
 
         fragment.btAbort.setOnClickListener{}
     }
 
-    override fun setComponentsVisibility(data:String) {
-        super.setComponentsVisibility(data)
+    override fun setComponentsVisibility(status:Status) {
+        super.setComponentsVisibility(status)
         fragment.txtGroup.visibility     = View.INVISIBLE
         fragment.txtUDA.visibility       = View.INVISIBLE
         fragment.btAbort.visibility      = View.INVISIBLE
@@ -174,10 +171,10 @@ class WaitApp(frg:MainFragment, res:Resources):State(frg,res){
 
     // this data contains a json with the Subject description
     // e.g. : "{\"id\":\"3\",\"nome\":\"Storia\",\"posizione\":\"1\",\"descrizione\":\"La materia Storia blah, blah, blah\"}"
-    override fun setComponentsVisibility(data:String){
-        super.setComponentsVisibility(data)
+    override fun setComponentsVisibility(status:Status){
+        super.setComponentsVisibility(status)
 
-        val uda_subject    = data.jsonObject
+        val uda_subject    = status.data?.jsonObject
         val uda_name       = uda_subject?.getString("nome")?.toUpperCase() ?: ""
 
         fragment.txtGroup.visibility     = View.INVISIBLE
@@ -195,58 +192,24 @@ class GroupSent(frg:MainFragment, res:Resources):State(frg,res){
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_group_sent), res.getString(R.string.action_group_sent))
 
     // if UDA was not running (server in WAIT_APP status) => data is uda_id_by_app
-    override fun apply(data:String) {
-        super.apply(data)
+    override fun apply(status:Status) {
+        super.apply(status)
 
-        if(data == "-1")
+        if(status.data == "-1")
             show1MethodDialog(fragment.requireActivity(), res.getString(R.string.warning), res.getString(R.string.group_wrong))
-                            {   fragment.viewModel.status.value = Status(STATUS_SUCCESS, RemoteConnector.WAIT_APP, "")  }
+                            {   fragment.viewModel.status.value = Status(STATUS_SUCCESS, RemoteConnector.WAIT_APP)  }
         else
-            fragment.groupConfirmed(data)
+            fragment.groupConfirmed(status.data!!)
 
     }
 
-//    override fun setUITexts(data:String){
-//        super.setUITexts(data)
-//        if(data == "-1") return
-//
-//
-//        val group = if(data == "-1")   res.getString(R.string.group_wrong)
-//                    else               data                        // resources.getString(R.string.group_defined, d.toString())
-//
-//        val intent = Intent("GROUP_UPDATE")
-//        intent.putExtra("data", "REGISTRATO COME GRUPPO $group")
-//        LocalBroadcastManager.getInstance(fragment.context!!).sendBroadcast(intent)
-//
-//        fragment.txtGroup.text = group
-//    }
-
-    override fun setComponentsVisibility(data:String){
-        super.setComponentsVisibility(data)
+    override fun setComponentsVisibility(status:Status){
+        super.setComponentsVisibility(status)
 
         fragment.txtStatus.visibility    = View.INVISIBLE
         fragment.txtUDA.visibility       = View.INVISIBLE        
     }
 }
-
-
-// 103 RECEIVED_UDA_ID, used only to save uda_id when the app reconnect on an already open session
-//class ReConnected(frg:MainFragment, res:Resources):State(frg,res){
-//
-//    override var message:Pair<String, String>   = Pair(res.getString(R.string.status_reconnected), res.getString(R.string.action_reconnected))
-//
-//    @SuppressLint("SetTextI18n")
-//    override fun setUITexts(data:String){
-//        super.setUITexts(data)
-//        fragment.txtStatus.text         = "${message.first} $data"
-//        fragment.txtUDA.text            = data
-//
-//        fragment.btAction.visibility    = View.INVISIBLE
-//    }
-//}
-
-
-
 
 // 3
 class ReachUda(frg:MainFragment, res:Resources):State(frg,res){
@@ -255,20 +218,20 @@ class ReachUda(frg:MainFragment, res:Resources):State(frg,res){
     override var message:Pair<String, String>   = Pair(res.getString(R.string.status_reach_uda), res.getString(R.string.action_reach_uda))
 
     @SuppressLint("SetTextI18n")
-    override fun setUITexts(data:String){
-        super.setUITexts(data)
+    override fun setUITexts(status:Status){
+        super.setUITexts(status)
 
         fragment.txtStatus.text         = message.first
-        fragment.txtUDA.text            = data
+        fragment.txtUDA.text            = status.uda_id.toString()
 
         fragment.btAction.text          = message.second
         fragment.btAction.visibility    = View.VISIBLE
     }
 
     // data is udaid_to_reach
-    override fun setComponentsVisibility(data: String) {
-        super.setComponentsVisibility(data)
-        fragment.blinkUDA2Reach(data)
+    override fun setComponentsVisibility(status:Status) {
+        super.setComponentsVisibility(status)
+        fragment.blinkUDA2Reach(status.uda_id.toString())
     }
 }
 
@@ -285,8 +248,8 @@ class Ready(frg:MainFragment, res:Resources):State(frg,res){
 
     override var mPressStatus:Int = RemoteConnector.REACHING_UDA
 
-    override fun apply(data:String) {
-        super.apply(data)
+    override fun apply(status:Status) {
+        super.apply(status)
         fragment.stopBlinking()
     }
 }
@@ -309,8 +272,8 @@ class Paused(frg:MainFragment, res:Resources):State(frg,res){
 
     override var mPressStatus:Int = RemoteConnector.RESUME
 
-    override fun setComponentsVisibility(data:String){
-        super.setComponentsVisibility(data)
+    override fun setComponentsVisibility(status:Status){
+        super.setComponentsVisibility(status)
 
         fragment.btAction2.visibility   = View.INVISIBLE
         fragment.btAction2.text         = res.getString(R.string.text_ricomincia)
@@ -361,10 +324,10 @@ class WaitData(frg:MainFragment, res:Resources):State(frg,res){
 
     override var mPressStatus:Int = RemoteConnector.DATA_SENT
 
-    override fun setComponentsVisibility(data:String){
-        super.setComponentsVisibility(data)
+    override fun setComponentsVisibility(status:Status){
+        super.setComponentsVisibility(status)
 
-        val json        = data.jsonObject
+        val json        = status.data?.jsonObject
         val question    = json?.getString("question") ?: ""
 
         if (question.isEmpty())
@@ -384,7 +347,7 @@ class WaitData(frg:MainFragment, res:Resources):State(frg,res){
                 } else throw MyException(MainFragment.ERROR_ANSWERS_EMPTY, "error in QA format")
             }
         }
-        fragment.showAnswerDialog(data, type)
+        fragment.showAnswerDialog(status.data!!, type)
     }
 }
 
@@ -398,8 +361,8 @@ class Completed(frg:MainFragment, res:Resources):State(frg,res){
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_completed), res.getString(R.string.action_completed))
 
 
-    override fun apply(data:String) {
-        super.apply(data)
+    override fun apply(status:Status) {
+        super.apply(status)
         fragment.udaCompleted()
     }
 }
@@ -424,9 +387,9 @@ class ErrorApp(frg:MainFragment, res:Resources):State(frg,res){
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_error_app), res.getString(R.string.action_error_app))
 
     @SuppressLint("SetTextI18n")
-    override fun setUITexts(data: String) {
-        super.setUITexts(data)
-        fragment.txtStatus.text = "${fragment.txtStatus.text}\n$data"
+    override fun setUITexts(status: Status) {
+        super.setUITexts(status)
+        fragment.txtStatus.text = "${fragment.txtStatus.text}\n$status"
     }
 }
 
@@ -435,8 +398,8 @@ class ErrorServer(frg:MainFragment, res:Resources):State(frg,res){
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_error_srv), res.getString(R.string.action_error_srv))
 
     @SuppressLint("SetTextI18n")
-    override fun setUITexts(data: String) {
-        super.setUITexts(data)
-        fragment.txtStatus.text = "${fragment.txtStatus.text}\n$data"
+    override fun setUITexts(status: Status) {
+        super.setUITexts(status)
+        fragment.txtStatus.text = "${fragment.txtStatus.text}\n${status.data}"
     }
 }
