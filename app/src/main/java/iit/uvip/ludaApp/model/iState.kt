@@ -160,7 +160,7 @@ class WaitApp(frg:MainFragment, res:Resources):State(frg,res){
         super.setButtonAction()
 
         fragment.btAction.setOnClickListener{
-            fragment.insertGroupID(fragment.spGroup.selectedItemPosition+1)
+            fragment.insertGroupID(fragment.spGroup.selectedItemPosition+1) // TODO: insert combo with explorer id
         }
 
 //        fragment.btAbort.setOnClickListener{

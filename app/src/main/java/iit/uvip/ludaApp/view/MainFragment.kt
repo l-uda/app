@@ -126,7 +126,7 @@ class MainFragment : BaseFragment(
     var completedUDAsViews:List<ImageView> = listOf()
 
     var mGroupId:Int    = -1
-    var mSubGroupId:Int = -1
+    var mExplorerId:Int = -1
 
     private var mAnswerDF: DialogFragment?  = null
     private var mIsOnline:Boolean           = false
@@ -165,7 +165,7 @@ class MainFragment : BaseFragment(
 
             if(!isPolling) return@observe
 
-            var data = it.data ?: ""
+//            var data = it.data ?: ""
             when(it.result) {
                 STATUS_SUCCESS -> {
                     try{
@@ -225,16 +225,17 @@ class MainFragment : BaseFragment(
     fun put(status:Int, data:String = ""){
         if(checkConnection())
             if(status != NO_STATUS)
-                viewModel.put(mGroupId, status, data)
+                viewModel.put(mGroupId, mExplorerId, status, data)
     }
 
-    // WAIT_APP state propose a groupId
-    fun insertGroupID(grp_id:Int){
+    // WAIT_APP State propose a groupId
+    fun insertGroupID(grp_id:Int, expl_id:Int = -1){
         if(grp_id == -1){
             return
         }
-        mGroupId = grp_id
-        if(checkConnection())        viewModel.put(grp_id, GROUP_SENT)
+        mGroupId    = grp_id
+        mExplorerId = expl_id
+        if(checkConnection())        viewModel.put(grp_id, expl_id, GROUP_SENT)
     }
 
     fun startPolling(){
@@ -246,8 +247,9 @@ class MainFragment : BaseFragment(
     }
 
     fun stopPolling(){
-        isPolling = false
-        mGroupId = -1
+        isPolling   = false
+        mGroupId    = -1
+        mExplorerId = -1
         if(checkConnection())        viewModel.stopPolling()
     }
     //endregion======================================================================
@@ -346,10 +348,10 @@ class MainFragment : BaseFragment(
     //==============================================================================================
     private fun initGroupsSpinner(){
         ArrayAdapter.createFromResource(requireContext(), R.array.groups_array, android.R.layout.simple_spinner_item)
-            .also { adapter ->
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                spGroup.adapter = adapter
-            }
+        .also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spGroup.adapter = adapter
+        }
     }
 
     private fun checkConnection():Boolean{

@@ -26,9 +26,9 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
                 private val remoteConnector: RemoteConnector) : ViewModel() {
 
     companion object {
-        const val GROUP_ID  = "GROUP_ID"
-        const val STATUS    = "STATUS"
-
+        const val GROUP_ID      = "GROUP_ID"
+        const val EXPLORER_ID   = "EXPLORER_ID"
+        const val STATUS        = "STATUS"
     }
 
     private val disposable = CompositeDisposable()
@@ -37,6 +37,13 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
         get() = savedStateHandle.get<Int>(GROUP_ID) ?: -1
         set(value) {
             savedStateHandle.set(GROUP_ID, value)
+            field = value
+        }
+
+    private var explorerId:Int = savedStateHandle.get<Int>(EXPLORER_ID) ?: -1
+        get() = savedStateHandle.get<Int>(EXPLORER_ID) ?: -1
+        set(value) {
+            savedStateHandle.set(EXPLORER_ID, value)
             field = value
         }
 
@@ -92,12 +99,16 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
 
     fun stopPolling() {
         groupId = -1
+        explorerId = -1
         remoteConnector.stopPolling()
         statusId = RESET
     }
 
-    fun put(grp_id: Int, status_code:Int, data:String = "") {
-        if(status_code == GROUP_SENT) groupId = grp_id
+    fun put(grp_id: Int, expl_id:Int, status_code:Int, data:String = "") {
+        if(status_code == GROUP_SENT){
+            groupId     = grp_id
+            explorerId  = expl_id
+        }
         else {
             if (grp_id == -1) {
                 statusId     = ERROR_APP_NOT_ASSOCIATED
@@ -105,7 +116,7 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
                 return
             }
         }
-        remoteConnector.put(grp_id, status_code, data)
+        remoteConnector.put(grp_id, expl_id, status_code, data)
     }
 
     //======================================================================
@@ -122,9 +133,6 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
         }
     }
 }
-
-
-
 
 //        @JvmStatic val STATUS_DISCONNECTED  = 10    // App disconnessa
 //        @JvmStatic val STATUS_CONNECTING    = 11    // sessione presente, gruppo inserito, in attesa di connessione

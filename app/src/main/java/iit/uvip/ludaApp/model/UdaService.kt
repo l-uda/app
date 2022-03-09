@@ -14,10 +14,10 @@ interface UdaService {
     // "https://www.sagosoft.it/_API_/cpim/luda/www/luda_20210111_1500/api/app/"
     // {"api":"API","version":"1.0","type":"UDA","function":"GET","i":"2","k":0,"status":"1","error":null,"description":"Questa funzione funziona!","notes":["notes","Lorem","Ipse","Dicitur"]}
     @GET("get/?")
-    fun getStatus(@Query("i") i: Int): Observable<StatusResult>
+    fun getStatus(@Query("i") i: Int, @Query("k") k: Int = -1): Observable<StatusResult>
 
     @PUT("put/?")
-    fun putStatus(@Query("i") i: Int, @Query("k") k: Int, @Query("data") data: String = ""): Observable<StatusResult>
+    fun putStatus(@Query("i") i: Int, @Query("k") k: Int = -1, @Query("status") status: Int, @Query("data") data: String = ""): Observable<StatusResult>
 
     companion object {
 
@@ -39,5 +39,6 @@ data class StatusResult(var type: String = "",
                         var status:Any? = null,
                         var data: String = "",
                         var uda_id: String = "",
+                        var indizi: String = "",
                         var error: String? = null,
                         var description: String? = null)

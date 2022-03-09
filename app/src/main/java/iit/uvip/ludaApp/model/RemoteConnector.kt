@@ -17,6 +17,7 @@ class RemoteConnector{
 
     private var lastSentStatus:Int  = IDLE
     private var groupId:Int         = -1
+    private var explorerId:Int      = -1
 
     private var service:UdaService? = null
 
@@ -90,25 +91,26 @@ class RemoteConnector{
         disposableTimer?.dispose()
     }
 
-    fun put(grp_id: Int, status:Int, data:String = ""){
-        if(status == GROUP_SENT)    setGroupID(grp_id)
+    fun put(grp_id: Int, expl_id: Int, status:Int, data:String = ""){
+        if(status == GROUP_SENT)    setGroupID(grp_id, expl_id)
         else {
             lastSentStatus = status
-            disposable = service?.putStatus(grp_id, status, data)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
-                ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: -1, result.uda_id.toInt(), result.data))},
+            disposable = service?.putStatus(grp_id, expl_id, status, data)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
+                ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: -1, result.uda_id.toInt(), result.data, result.indizi))},
                             { error  -> processError(STATUS_ERROR, lastSentStatus, error.message) })
         }
     }
     //============================================================================================
     // SET GROUP
-    private fun setGroupID(grp_id: Int) {
-        disposable = service?.putStatus(grp_id, GROUP_SENT)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
+    private fun setGroupID(grp_id: Int, expl_id:Int = -1) {
+        disposable = service?.putStatus(grp_id, expl_id, GROUP_SENT)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
                     ?.subscribe({
                     run {
                         Log.d("REMOTE_CONN", "status: $it")
-                        groupId = grp_id
+                        groupId     = grp_id
+                        explorerId  = expl_id
 //                        newServerEvent.accept(Status(STATUS_SUCCESS, GROUP_SENT, it.uda_id.toInt(), it.data))
-                        newServerEvent.accept(Status(STATUS_SUCCESS, REACH_UDA, it.uda_id.toInt()))
+                        newServerEvent.accept(Status(STATUS_SUCCESS, REACH_UDA, it.uda_id.toInt(), it.indizi))
                     }
                 },
                 { error ->  processError(STATUS_ERROR, GROUP_SENT, error.message) })
@@ -116,9 +118,9 @@ class RemoteConnector{
     //============================================================================================
     // GET STATUS
     //============================================================================================
-    private fun getStatus(grp_id: Int) {
-        disposable = service?.getStatus(grp_id)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: IDLE, result.uda_id.toInt(), result.data)) },
+    private fun getStatus(grp_id: Int, expl_id: Int = -1) {
+        disposable = service?.getStatus(grp_id, expl_id)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: IDLE, result.uda_id.toInt(), result.data, result.indizi)) },
                         { error  -> processError(STATUS_ERROR, STATUS_ERROR, error.message) })
     }
     //============================================================================================
