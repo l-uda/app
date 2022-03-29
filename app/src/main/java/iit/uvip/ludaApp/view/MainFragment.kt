@@ -114,9 +114,10 @@ class MainFragment : BaseFragment(
 
 //    private val viewModelFactory    = StatusVM.Factory(this, null, DependenciesProviderParam.getInstance(URL).remoteConnector)
     private val viewModelFactory    = StatusVM.Factory(this, null, remoteConnector)
-    private var mStatus:Int         = NO_STATUS
+    private var mStatus:Int         = NO_STATUS //  in the onViewCreated I call viewModel.status.value = Status(STATUS_SUCCESS, RESET)
     private var mCurrUdaId:String   = ""
     private var mSubjectName:String = ""
+    private var mHasSubgroups:Int   = 0
 
     private var isPolling:Boolean   = false     // this var is needed because stop polling takes time.
                                                 // when I call a stop polling and go to -1, there can be a status 0 that take me back to 0 (Nosession)
@@ -133,7 +134,7 @@ class MainFragment : BaseFragment(
 
     // unmanaged: START=6, FINALIZE=17, WAIT_SERVER=19
     private val states:HashMap<Int, State> by lazy { hashMapOf(
-        RESET           to NotPolling(this, resources), // -1
+        RESET           to NotPolling(this, resources), // -2
         IDLE            to NoSession(this, resources),  // 0
         WAIT_APP        to WaitApp(this, resources),    // 1
         GROUP_SENT      to GroupSent(this, resources),  // 2
@@ -154,7 +155,7 @@ class MainFragment : BaseFragment(
         WAIT_SERVER     to WaitServer(this, resources), // 19
         ERROR_UDA       to ErrorUDA(this, resources),   // 20
         ERROR_APP       to ErrorApp(this, resources),   // 21
-        ERROR_SERVER    to ErrorServer(this, resources)// 22
+        ERROR_SERVER    to ErrorServer(this, resources) // 22
 //        RECEIVED_UDA_ID to ReConnected(this, resources),// 1003
     )}
 
@@ -162,10 +163,8 @@ class MainFragment : BaseFragment(
 
         viewModel.status.observe(viewLifecycleOwner) {
 //            Log.d("MAIN", "status: $it.status")
-
             if(!isPolling) return@observe
 
-//            var data = it.data ?: ""
             when(it.result) {
                 STATUS_SUCCESS -> {
                     try{
@@ -181,7 +180,8 @@ class MainFragment : BaseFragment(
                         ERROR_APP_NOT_ASSOCIATED    -> ERROR_APP   // devo ignorare quanto arriva dal server perchè è sicuramente sbagliato
                         else                        -> ERROR_SERVER
                     }
-//                    stopPolling()
+                    isPolling = false   // stop polling was called in StatusVM, call also here to reset variables
+                    stopPolling()
                 }
             }
             try{
@@ -208,9 +208,9 @@ class MainFragment : BaseFragment(
         initGroupsSpinner()
         setupObserver()
         txtUrl.setText(URL)
-        completedUDAsViews = listOf(ivUda1Completed, ivUda2Completed, ivUda3Completed, ivUda4Completed, ivUda5Completed)
-        isPolling = true    // to set init status I enable status-updating in the observer
-        viewModel.status.value = Status(STATUS_SUCCESS, RESET)
+        completedUDAsViews      = listOf(ivUda1Completed, ivUda2Completed, ivUda3Completed, ivUda4Completed, ivUda5Completed)
+        isPolling               = true    // to set init status I enable status-updating in the observer
+        viewModel.status.value  = Status(STATUS_SUCCESS, RESET)
     }
 
     override fun onResume() {
@@ -222,22 +222,6 @@ class MainFragment : BaseFragment(
 
     //region REMOTE CALLS
     //======================================================================
-    fun put(status:Int, data:String = ""){
-        if(checkConnection())
-            if(status != NO_STATUS)
-                viewModel.put(mGroupId, mExplorerId, status, data)
-    }
-
-    // WAIT_APP State propose a groupId
-    fun insertGroupID(grp_id:Int, expl_id:Int = -1){
-        if(grp_id == -1){
-            return
-        }
-        mGroupId    = grp_id
-        mExplorerId = expl_id
-        if(checkConnection())        viewModel.put(grp_id, expl_id, GROUP_SENT)
-    }
-
     fun startPolling(){
 
         if(checkConnection()){
@@ -247,10 +231,27 @@ class MainFragment : BaseFragment(
     }
 
     fun stopPolling(){
-        isPolling   = false
         mGroupId    = -1
         mExplorerId = -1
-        if(checkConnection())        viewModel.stopPolling()
+        if(checkConnection() && isPolling){
+            isPolling   = false
+            viewModel.stopPolling()
+        }
+    }
+
+    // WAIT_APP State propose a groupId/explorerId
+    fun insertGroupID(){
+
+        mGroupId    = spGroup.selectedItemPosition+1
+        mExplorerId = if(mHasSubgroups > 0)   spExplorer.selectedItemPosition+1
+        else                    -1
+        if(checkConnection())        viewModel.put(mGroupId, mExplorerId, GROUP_SENT)
+    }
+
+    fun put(status:Int, data:String = ""){
+        if(checkConnection())
+            if(status != NO_STATUS)
+                viewModel.put(mGroupId, mExplorerId, status, data)
     }
     //endregion======================================================================
 
@@ -281,10 +282,11 @@ class MainFragment : BaseFragment(
     //endregion=====================================================================================
 
     //region STATES_CALLBACK =======================================================================
-    public fun setUDASubject(subject:String){
+    public fun setUDASubject(subject:String, has_subgroups:Int){
 
-        mSubjectName = subject.toLowerCase()
-        val intent = Intent("SUBJECT_UPDATE")
+        mSubjectName    = subject.toLowerCase()
+        mHasSubgroups   = has_subgroups
+        val intent      = Intent("SUBJECT_UPDATE")
         intent.putExtra("data", subject)
         LocalBroadcastManager.getInstance(context!!).sendBroadcast(intent)
 
@@ -351,6 +353,11 @@ class MainFragment : BaseFragment(
         .also { adapter ->
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             spGroup.adapter = adapter
+        }
+        ArrayAdapter.createFromResource(requireContext(), R.array.explorers_array, android.R.layout.simple_spinner_item)
+        .also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spExplorer.adapter = adapter
         }
     }
 

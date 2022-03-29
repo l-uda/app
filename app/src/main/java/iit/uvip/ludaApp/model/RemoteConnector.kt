@@ -27,16 +27,12 @@ class RemoteConnector{
         @JvmStatic val STATUS_ERROR         = 101    //
         @JvmStatic val TIMER_ERROR          = 102    //
 
-
-
         @JvmStatic val GENERIC_ERROR        = 1000    //
         @JvmStatic val USER_ALREADY_EXIST   = 1001    //
 
-
-
         // STATUS GET
-
-        const val RESET         = -1    //  when server is rebooted or re-inited
+        const val RESET         = -2    //  when not polling.
+        const val POLLING       = -1    //  user pressed "connect"
         const val IDLE          = 0     //  get <- (-1)
         const val WAIT_APP      = 1     //  get <- (-1)
         const val REACH_UDA     = 3     //  status, data <- get(grpid)
@@ -76,8 +72,8 @@ class RemoteConnector{
         service         = UdaService.create(url)
         disposableTimer = Observable.interval(200, 200, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe( { aLong: Long           -> getStatus(groupId) },
-                        { throwable: Throwable  -> processError(TIMER_ERROR, TIMER_ERROR, throwable.message) })
+            .subscribe( { aLong: Long           -> getStatus(groupId, explorerId) },
+                        { throwable: Throwable  -> processError(TIMER_ERROR, TIMER_ERROR, throwable.message ?: "") })
     }
 
     fun stopPolling() {
@@ -96,8 +92,8 @@ class RemoteConnector{
         else {
             lastSentStatus = status
             disposable = service?.putStatus(grp_id, expl_id, status, data)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
-                ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: -1, result.uda_id.toInt(), result.data, result.indizi))},
-                            { error  -> processError(STATUS_ERROR, lastSentStatus, error.message) })
+                ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: -1, result.uda_id.toInt(), result.data ?: "", result.indizi ?: ""))},
+                            { error  -> processError(STATUS_ERROR, lastSentStatus, error.message ?: "") })
         }
     }
     //============================================================================================
@@ -110,24 +106,27 @@ class RemoteConnector{
                         groupId     = grp_id
                         explorerId  = expl_id
 //                        newServerEvent.accept(Status(STATUS_SUCCESS, GROUP_SENT, it.uda_id.toInt(), it.data))
-                        newServerEvent.accept(Status(STATUS_SUCCESS, REACH_UDA, it.uda_id.toInt(), it.indizi))
+                        newServerEvent.accept(Status(STATUS_SUCCESS, REACH_UDA, it.uda_id.toInt(), it.data ?: "", it.indizi ?: ""))
                     }
                 },
-                { error ->  processError(STATUS_ERROR, GROUP_SENT, error.message) })
+                { error ->  run {
+                    val error_message = error.message ?: ""
+                    if(error_message != "timeout") processError(STATUS_ERROR, GROUP_SENT, error_message)
+                } })
     }
     //============================================================================================
     // GET STATUS
     //============================================================================================
     private fun getStatus(grp_id: Int, expl_id: Int = -1) {
         disposable = service?.getStatus(grp_id, expl_id)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: IDLE, result.uda_id.toInt(), result.data, result.indizi)) },
-                        { error  -> processError(STATUS_ERROR, STATUS_ERROR, error.message) })
+            ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: IDLE, result.uda_id.toInt(), result.data ?: "", result.indizi ?: "")) },
+                        { error  -> processError(STATUS_ERROR, STATUS_ERROR, error.message ?: "") })
     }
     //============================================================================================
     // ACCESSORY
     //============================================================================================
-    private fun processError(code:Int, status:Int, msg: String?){
-        newServerEvent.accept(Status(code, status, -1, (msg ?: "")))
+    private fun processError(code:Int, status:Int, msg: String = ""){
+        newServerEvent.accept(Status(code, status, -1, msg))
     }
     //============================================================================================
 }

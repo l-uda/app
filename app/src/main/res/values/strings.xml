@@ -112,6 +112,19 @@
         <item>Gruppo 5</item>
     </string-array>
 
+    <string-array name="explorers_array">
+        <item>Esploratore 1</item>
+        <item>Esploratore 2</item>
+        <item>Esploratore 3</item>
+        <item>Esploratore 4</item>
+        <item>Esploratore 5</item>
+        <item>Esploratore 6</item>
+        <item>Esploratore 7</item>
+        <item>Esploratore 8</item>
+        <item>Esploratore 9</item>
+        <item>Esploratore 10</item>
+    </string-array>
+
     <string name="tts_language_notsupported">The Language specified is not supported!</string>
     <string name="tts_notinitialized">Initialization Failed!</string>
 

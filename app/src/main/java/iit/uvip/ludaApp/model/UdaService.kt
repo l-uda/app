@@ -17,7 +17,7 @@ interface UdaService {
     fun getStatus(@Query("i") i: Int, @Query("k") k: Int = -1): Observable<StatusResult>
 
     @PUT("put/?")
-    fun putStatus(@Query("i") i: Int, @Query("k") k: Int = -1, @Query("status") status: Int, @Query("data") data: String = ""): Observable<StatusResult>
+    fun putStatus(@Query("i") i: Int, @Query("k") k: Int = -1, @Query("status") status: Int, @Query("data") data: String? = ""): Observable<StatusResult>
 
     companion object {
 
@@ -37,8 +37,8 @@ data class StatusResult(var type: String = "",
                         var i:Int = -1,
                         var k:Int = -1,
                         var status:Any? = null,
-                        var data: String = "",
+                        var data: String? = null,
                         var uda_id: String = "",
-                        var indizi: String = "",
+                        var indizi: String? = null,
                         var error: String? = null,
                         var description: String? = null)

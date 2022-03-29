@@ -12,6 +12,7 @@ import iit.uvip.ludaApp.model.RemoteConnector
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.ERROR_SERVER
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.GROUP_SENT
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.IDLE
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.POLLING
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESET
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.STATUS_ERROR
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.STATUS_SUCCESS
@@ -47,7 +48,7 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
             field = value
         }
 
-    private var statusId:Int = savedStateHandle.get<Int>(STATUS) ?: -1
+    private var statusId:Int = savedStateHandle.get<Int>(STATUS) ?: RESET
         get() = savedStateHandle.get<Int>(STATUS) ?: -1
         set(value) {
             savedStateHandle.set(STATUS, value)
@@ -58,15 +59,15 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
 
     // quando l'app non è collegata a nessun gruppo (groupId = -1) . il get=-1 ritorna lo status del server
     // una volta collegata (groupId > 0), il get ritorna lo status della uda collegata in quel turno all'app.
-    // quando faccio INIT/REBOOT sul server lo status del server= 0, mentre ciascuna uda= -1
+    // quando faccio INIT/REBOOT sul server lo status del server va a 0, mentre ciascuna uda= -1
     init {
         remoteConnector.newServerEvent
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
                 if(it.result == STATUS_SUCCESS) {
 
-                    // when I start polling I set statusID=IDLE, when I press abort from UI
-                    // I call stopPolling and set statusId=RESET to prevent any further status update
+                    // when I start polling I set statusID=IDLE,
+                    // when I press abort from UI I call this.stopPolling which makes remoteConnector.stopPolling() and set statusId=RESET to prevent any further status update
                     if(statusId == RESET) return@subscribe
 
                     if (it.status != statusId) {                // I change status.value only when a NEW STATUS is RECEIVED
@@ -82,8 +83,9 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
                     }
                 }
                 else{
-                    statusId        = ERROR_SERVER
-                    status.value    = Status(STATUS_ERROR, ERROR_SERVER, it.uda_id, it.data)
+//                    statusId        = RESET // stop listening to events. ERROR_SERVER
+                    stopPolling()
+                    status.value    = Status(STATUS_ERROR, ERROR_SERVER, it.uda_id, it.data ?: "")  // data contains error message
                 }
             }
             .addTo(disposable)
@@ -93,15 +95,15 @@ class StatusVM( private val savedStateHandle: SavedStateHandle,
     // PUBLIC
     //======================================================================
     fun startPolling(url:String) {
-        statusId = IDLE
+        statusId = POLLING
         remoteConnector.startPolling(url)
     }
 
     fun stopPolling() {
-        groupId = -1
-        explorerId = -1
+        groupId     = -1
+        explorerId  = -1
+        statusId    = RESET
         remoteConnector.stopPolling()
-        statusId = RESET
     }
 
     fun put(grp_id: Int, expl_id:Int, status_code:Int, data:String = "") {

@@ -36,10 +36,7 @@ abstract class State(val fragment: MainFragment, val res:Resources) {
 
         fragment.btAction2.setOnClickListener{}
 
-        fragment.btAbort.setOnClickListener{
-            fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET)
-//            fragment.stopPolling()
-        }
+        fragment.btAbort.setOnClickListener{ fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET) }
     }
 
     open fun setUITexts(status:Status){
@@ -51,25 +48,22 @@ abstract class State(val fragment: MainFragment, val res:Resources) {
             fragment.btAction.text       = message.second
             fragment.btAction.visibility = View.VISIBLE
         }
-
-        fragment.txtUrl.visibility       = View.INVISIBLE
+//        fragment.txtUrl.visibility       = View.INVISIBLE
     }
 
     open fun setComponentsVisibility(status:Status){
 
         fragment.txtStatus.visibility    = View.VISIBLE
+
         fragment.btAbort.visibility      = View.INVISIBLE
-//        fragment.txtGroup.visibility     = View.VISIBLE
-//        fragment.txtUDA.visibility       = View.VISIBLE
-
-
-//        fragment.ivTargetUDA.visibility  = View.INVISIBLE
         fragment.spGroup.visibility      = View.INVISIBLE
+        fragment.spExplorer.visibility   = View.INVISIBLE
         fragment.btAction2.visibility    = View.INVISIBLE
     }
 }
 
-// -1: RESET:  abort invisible
+// -1: RESET:  starting state. polling not active
+// abort invisible
 class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
 
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_start), res.getString(R.string.action_start))
@@ -93,12 +87,7 @@ class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
     override fun setButtonAction(){
         super.setButtonAction()
         fragment.btAction.setOnClickListener{ fragment.startPolling() }
-
         fragment.btAbort.setOnClickListener{}
-//        fragment.btAbort.setOnClickListener{
-//            fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET, "")
-////            fragment.stopPolling()
-//        }
     }
 
     override fun setComponentsVisibility(status:Status){
@@ -108,12 +97,11 @@ class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
         fragment.txtGroup.visibility     = View.INVISIBLE
         fragment.txtUDA.visibility       = View.INVISIBLE
         fragment.btAbort.visibility      = View.INVISIBLE
-//        fragment.txtUrl.visibility       = View.VISIBLE
-        fragment.setUDASubject("")
+        fragment.setUDASubject("", 0)
     }
 }
 
-// 0
+// 0:  user pressed connect, but UDA was not initialized
 class NoSession(frg:MainFragment, res:Resources):State(frg,res){
 
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_idle), res.getString(R.string.action_idle))
@@ -145,11 +133,13 @@ class NoSession(frg:MainFragment, res:Resources):State(frg,res){
         fragment.txtGroup.visibility     = View.INVISIBLE
         fragment.txtUDA.visibility       = View.INVISIBLE
         fragment.btAbort.visibility      = View.INVISIBLE
-        fragment.setUDASubject("")
+        fragment.setUDASubject("", 0)
     }
 }
 
-// 1
+// 1: user asked to connect and a session was present
+// the app receives Subject information. user must register the app
+// with(out) the explorer combo
 class WaitApp(frg:MainFragment, res:Resources):State(frg,res){
 
     override var mPressStatus:Int = RemoteConnector.GROUP_SENT
@@ -158,30 +148,34 @@ class WaitApp(frg:MainFragment, res:Resources):State(frg,res){
 
     override fun setButtonAction(){
         super.setButtonAction()
-
         fragment.btAction.setOnClickListener{
-            fragment.insertGroupID(fragment.spGroup.selectedItemPosition+1) // TODO: insert combo with explorer id
+            fragment.insertGroupID()
         }
 
-//        fragment.btAbort.setOnClickListener{
-//            fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET, "")
-////            fragment.stopPolling()
-//        }
+        fragment.btAbort.setOnClickListener{
+            fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET, -1)
+        }
     }
 
     // this data contains a json with the Subject description
-    // e.g. : "{\"id\":\"3\",\"nome\":\"Storia\",\"posizione\":\"1\",\"descrizione\":\"La materia Storia blah, blah, blah\"}"
+    // e.g. : "{\"id\":\"3\",\"nome\":\"Storia\",\"posizione\":\"1\",\"descrizione\":\"La materia Storia blah, blah, blah\", \"has_subgroups\":0 or 1}"
     override fun setComponentsVisibility(status:Status){
         super.setComponentsVisibility(status)
 
         val uda_subject    = status.data?.jsonObject
         val uda_name       = uda_subject?.getString("nome")?.toUpperCase() ?: ""
+        val has_subgroups  = uda_subject?.getInt("has_subgroups") ?: 0
 
         fragment.txtGroup.visibility     = View.INVISIBLE
         fragment.txtUDA.visibility       = View.INVISIBLE
-        fragment.spGroup.visibility      = View.VISIBLE
 
-        fragment.setUDASubject(uda_name)
+        fragment.btAbort.visibility      = View.VISIBLE
+
+        fragment.spGroup.visibility      = View.VISIBLE
+        fragment.spExplorer.visibility   = if(has_subgroups > 0)   View.VISIBLE
+                                           else                    View.INVISIBLE
+
+        fragment.setUDASubject(uda_name, has_subgroups)
     }
 }
 
@@ -200,7 +194,6 @@ class GroupSent(frg:MainFragment, res:Resources):State(frg,res){
                             {   fragment.viewModel.status.value = Status(STATUS_SUCCESS, RemoteConnector.WAIT_APP)  }
         else
             fragment.groupConfirmed(status.data!!)
-
     }
 
     override fun setComponentsVisibility(status:Status){
