@@ -6,6 +6,9 @@ import android.content.res.Resources
 import android.view.View
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+
+
+
 import iit.uvip.ludaApp.R
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESET
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESTART
@@ -54,8 +57,8 @@ abstract class State(val fragment: MainFragment, val res:Resources) {
     open fun setComponentsVisibility(status:Status){
 
         fragment.txtStatus.visibility    = View.VISIBLE
+        fragment.btAbort.visibility      = View.VISIBLE
 
-        fragment.btAbort.visibility      = View.INVISIBLE
         fragment.spGroup.visibility      = View.INVISIBLE
         fragment.spExplorer.visibility   = View.INVISIBLE
         fragment.btAction2.visibility    = View.INVISIBLE
@@ -97,7 +100,7 @@ class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
         fragment.txtGroup.visibility     = View.INVISIBLE
         fragment.txtUDA.visibility       = View.INVISIBLE
         fragment.btAbort.visibility      = View.INVISIBLE
-        fragment.setUDASubject("", 0)
+        fragment.setUDASubject("", false)
     }
 }
 
@@ -132,8 +135,8 @@ class NoSession(frg:MainFragment, res:Resources):State(frg,res){
         super.setComponentsVisibility(status)
         fragment.txtGroup.visibility     = View.INVISIBLE
         fragment.txtUDA.visibility       = View.INVISIBLE
-        fragment.btAbort.visibility      = View.INVISIBLE
-        fragment.setUDASubject("", 0)
+//        fragment.btAbort.visibility      = View.INVISIBLE
+        fragment.setUDASubject("", false)
     }
 }
 
@@ -169,13 +172,13 @@ class WaitApp(frg:MainFragment, res:Resources):State(frg,res){
         fragment.txtGroup.visibility     = View.INVISIBLE
         fragment.txtUDA.visibility       = View.INVISIBLE
 
-        fragment.btAbort.visibility      = View.VISIBLE
+//        fragment.btAbort.visibility      = View.VISIBLE
 
         fragment.spGroup.visibility      = View.VISIBLE
-        fragment.spExplorer.visibility   = if(has_subgroups > 0)   View.VISIBLE
+        fragment.spExplorer.visibility   = if(has_subgroups>0)   View.VISIBLE
                                            else                    View.INVISIBLE
 
-        fragment.setUDASubject(uda_name, has_subgroups)
+        fragment.setUDASubject(uda_name, has_subgroups>0)
     }
 }
 
@@ -193,7 +196,7 @@ class GroupSent(frg:MainFragment, res:Resources):State(frg,res){
             show1MethodDialog(fragment.requireActivity(), res.getString(R.string.warning), res.getString(R.string.group_wrong))
                             {   fragment.viewModel.status.value = Status(STATUS_SUCCESS, RemoteConnector.WAIT_APP)  }
         else
-            fragment.groupConfirmed(status.data!!)
+            fragment.groupConfirmed(status.data!!.toString())
     }
 
     override fun setComponentsVisibility(status:Status){
@@ -321,6 +324,7 @@ class WaitData(frg:MainFragment, res:Resources):State(frg,res){
         super.setComponentsVisibility(status)
 
         val json        = status.data?.jsonObject
+//        val json        = status.data
         val question    = json?.getString("question") ?: ""
 
         if (question.isEmpty())
@@ -340,7 +344,8 @@ class WaitData(frg:MainFragment, res:Resources):State(frg,res){
                 } else throw MyException(MainFragment.ERROR_ANSWERS_EMPTY, "error in QA format")
             }
         }
-        fragment.showAnswerDialog(status.data!!, type)
+//        fragment.showAnswerDialog(status.data!!.toString(), 0)
+        fragment.showAnswerDialog(status.data!!.toString(), type)
     }
 }
 

@@ -92,7 +92,7 @@ class RemoteConnector{
         else {
             lastSentStatus = status
             disposable = service?.putStatus(grp_id, expl_id, status, data)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
-                ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: -1, result.uda_id.toInt(), result.data ?: "", result.indizi ?: ""))},
+                ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: -1, result.uda_id.toInt(), result.data ?: "", result.indizi ?: listOf()))},
                             { error  -> processError(STATUS_ERROR, lastSentStatus, error.message ?: "") })
         }
     }
@@ -106,7 +106,7 @@ class RemoteConnector{
                         groupId     = grp_id
                         explorerId  = expl_id
 //                        newServerEvent.accept(Status(STATUS_SUCCESS, GROUP_SENT, it.uda_id.toInt(), it.data))
-                        newServerEvent.accept(Status(STATUS_SUCCESS, REACH_UDA, it.uda_id.toInt(), it.data ?: "", it.indizi ?: ""))
+                        newServerEvent.accept(Status(STATUS_SUCCESS, REACH_UDA, it.uda_id.toInt(), it.data ?: "", it.indizi ?: listOf()))
                     }
                 },
                 { error ->  run {
@@ -119,7 +119,7 @@ class RemoteConnector{
     //============================================================================================
     private fun getStatus(grp_id: Int, expl_id: Int = -1) {
         disposable = service?.getStatus(grp_id, expl_id)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: IDLE, result.uda_id.toInt(), result.data ?: "", result.indizi ?: "")) },
+            ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: IDLE, result.uda_id.toInt(), result.data ?: "", result.indizi ?: listOf())) },
                         { error  -> processError(STATUS_ERROR, STATUS_ERROR, error.message ?: "") })
     }
     //============================================================================================

@@ -36,9 +36,9 @@ interface UdaService {
 data class StatusResult(var type: String = "",
                         var i:Int = -1,
                         var k:Int = -1,
-                        var status:Any? = null,
+                        var status:Int? = null,
                         var data: String? = null,
                         var uda_id: String = "",
-                        var indizi: String? = null,
+                        var indizi: List<Int>? = null,
                         var error: String? = null,
                         var description: String? = null)

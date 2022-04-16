@@ -2,6 +2,7 @@ package iit.uvip.ludaApp.view
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,7 +36,6 @@ class AnswerButtonsDF: DialogFragment() {
         txtQuestion.text    = json?.getString("question") ?: ""
 
         val arr = json?.getArrayOrNull("input_type")
-
         if(arr != null) {
             for(a in 0 until arr.length()) {
                 val answ = arr.get(a) as String

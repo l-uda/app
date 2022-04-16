@@ -117,7 +117,7 @@ class MainFragment : BaseFragment(
     private var mStatus:Int         = NO_STATUS //  in the onViewCreated I call viewModel.status.value = Status(STATUS_SUCCESS, RESET)
     private var mCurrUdaId:String   = ""
     private var mSubjectName:String = ""
-    private var mHasSubgroups:Int   = 0
+    private var mHasSubgroups:Boolean = false
 
     private var isPolling:Boolean   = false     // this var is needed because stop polling takes time.
                                                 // when I call a stop polling and go to -1, there can be a status 0 that take me back to 0 (Nosession)
@@ -163,7 +163,7 @@ class MainFragment : BaseFragment(
 
         viewModel.status.observe(viewLifecycleOwner) {
 //            Log.d("MAIN", "status: $it.status")
-            if(!isPolling) return@observe
+            if(!isPolling && mStatus != ERROR_SERVER) return@observe
 
             when(it.result) {
                 STATUS_SUCCESS -> {
@@ -243,8 +243,8 @@ class MainFragment : BaseFragment(
     fun insertGroupID(){
 
         mGroupId    = spGroup.selectedItemPosition+1
-        mExplorerId = if(mHasSubgroups > 0)   spExplorer.selectedItemPosition+1
-        else                    -1
+        mExplorerId =   if(mHasSubgroups )   spExplorer.selectedItemPosition+1
+                        else                 -1
         if(checkConnection())        viewModel.put(mGroupId, mExplorerId, GROUP_SENT)
     }
 
@@ -282,7 +282,7 @@ class MainFragment : BaseFragment(
     //endregion=====================================================================================
 
     //region STATES_CALLBACK =======================================================================
-    public fun setUDASubject(subject:String, has_subgroups:Int){
+    public fun setUDASubject(subject:String, has_subgroups:Boolean){
 
         mSubjectName    = subject.toLowerCase()
         mHasSubgroups   = has_subgroups
