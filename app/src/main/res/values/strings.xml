@@ -12,6 +12,7 @@
 
 <!--    <string name="group_not_defined">gruppo non definito</string>-->
     <string name="group_defined">Gruppo %1$s</string>
+    <string name="group_unregistered">NON REGISTRATO</string>
 
 
     <string name="group_wrong">il codice di gruppo che hai inserito potrebbe non essere valido, chiedi aiuto</string>

@@ -14,8 +14,9 @@
 .externalNativeBuild
 .cxx
 ludaApp/.idea
-buildSrc/build/
+
 /.idea
 
 /.idea/
 /.idea/codeStyles/
+/buildSrc/build/
