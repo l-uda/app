@@ -4,18 +4,18 @@
 
     <string name="warning">Attenzione</string>
 
+    <string name="close_alert">Chiudere l\'App?</string>
+    <string name="close_app_message">Sei sicuro di voler chiudere?</string>
+    <string name="yes">Si</string>
+    <string name="no">No</string>
 
-    <string name="close_alert">Close App?</string>
-    <string name="close_app_message">Do you really want to close the App</string>
-    <string name="yes">yes</string>
-    <string name="no">no</string>
 
 <!--    <string name="group_not_defined">gruppo non definito</string>-->
     <string name="group_defined">Gruppo %1$s</string>
     <string name="group_unregistered">NON REGISTRATO</string>
 
 
-    <string name="group_wrong">il codice di gruppo che hai inserito potrebbe non essere valido, chiedi aiuto</string>
+    <string name="group_wrong">Il codice di gruppo che hai inserito potrebbe non essere valido, chiedi aiuto</string>
 
 <!--    <string name="uda_not_defined">UDA non assegnata</string>-->
     <string name="uda_defined">UDA %1$s</string>
@@ -33,13 +33,13 @@
     <!--    messaggi stati -->
 
     <string name="status_idle">Ma quanta fretta!! Il gioco non è ancora iniziato.\n\nDovrai attendere ancora un pò.</string>
-    <string name="action_idle">interrompi ricerca</string>
+    <string name="action_idle">Interrompi ricerca</string>
 
     <string name="status_wait_app">Eccoci!! L’avventura sta per iniziare!\n\nSeleziona il numero del tuo gruppo e premi INVIO
 </string>
     <string name="action_wait_app">Invio</string>
 
-    <string name="status_group_sent">codice inviato…aspetta</string>
+    <string name="status_group_sent">Codice inviato…aspetta</string>
     <string name="action_group_sent" />
 
     <string name="status_reach_uda">OTTIMO LAVORO ESPLORATORE!\nPer portare a termine la tua avventura\nraggiungi la postazione lampeggiante\n\nTutto chiaro? Clicca \"GO!\" e parti</string>
@@ -52,57 +52,57 @@
     <string name="action_ready">Non sono pronto</string>
 
     <string name="status_started">UDA in corso</string>
-    <string name="action_started">pausa</string>
+    <string name="action_started">Pausa</string>
 
     <string name="status_paused">UDA in pausa</string>
-    <string name="action_paused">riprendi</string>
+    <string name="action_paused">Riprendi</string>
 
-    <string name="status_pause">mettendo in pausa UDA</string>
+    <string name="status_pause">Mettendo in pausa UDA</string>
     <string name="action_pause" />
 
-    <string name="status_resume">riprendendo UDA</string>
+    <string name="status_resume">Riprendendo UDA</string>
     <string name="action_resume"/>
 
-    <string name="status_restart">ripartendo UDA</string>
+    <string name="status_restart">Ripartendo UDA</string>
     <string name="action_restart" />
 
-    <string name="status_wait_data">inserisci la risposta</string>
-    <string name="action_wait_data">invia</string>
+    <string name="status_wait_data">Inserisci la risposta</string>
+    <string name="action_wait_data">Invia</string>
 
-    <string name="status_data_sent">risposta inviata…attendi</string>
+    <string name="status_data_sent">Risposta inviata…attendi</string>
     <string name="action_data_sent"/>
 
-    <string name="status_abort">sto forzando la chiusura della UDA</string>
+    <string name="status_abort">Sto forzando la chiusura della UDA</string>
     <string name="action_abort"/>
 
     <string name="status_aborted">UDA interrotta</string>
     <string name="action_aborted"/>
 
-    <string name="status_completed">\n\nla UDA è finita\nattendi che di sapere quale sia la prossima</string>
+    <string name="status_completed">\n\nLa UDA è finita\nattendi che di sapere quale sia la prossima</string>
     <string name="action_completed"/>
 
-    <string name="status_finalized">hai finito tutte le uda, vai al portale</string>
+    <string name="status_finalized">Hai finito tutte le uda, vai al portale</string>
     <string name="action_finalized"/>
 
     <string name="status_wait_server">Attendi che il gioco abbia inizio</string>
     <string name="action_wait_server"/>
 
-    <string name="status_error_uda">errore nella UDA, attendi istruzioni</string>
+    <string name="status_error_uda">Errore nella UDA, attendi istruzioni</string>
     <string name="action_error_uda"/>
 
-    <string name="status_error_app">errore nella APP, esci e riavviala</string>
+    <string name="status_error_app">Errore nella APP, esci e riavviala</string>
     <string name="action_error_app"/>
 
     <string name="status_error_app_not_associated">"l\'APP non è associata ad alcun gruppo"</string>
     <string name="action_error_app_not_associated"/>
 
-    <string name="status_error_srv">errore nel server, attendi istruzioni</string>
+    <string name="status_error_srv">Errore nel server, attendi istruzioni</string>
     <string name="action_error_srv"/>
 
     <string name="status_reconnected">Riconnesso, attendi nuovo status</string>
     <string name="action_reconnected"/>
 
-    <string name="text_ricomincia">ricomincia la UDA</string>
+    <string name="text_ricomincia">Ricomincia la UDA</string>
 
 
     <string-array name="groups_array">
