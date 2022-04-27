@@ -111,7 +111,7 @@ class RemoteConnector{
                 },
                 { error ->  run {
                     val error_message = error.message ?: ""
-                    if(error_message != "timeout") processError(STATUS_ERROR, GROUP_SENT, error_message)
+                    if(!error_message.contains("timeout") && !error_message.contains("timed out")) processError(STATUS_ERROR, GROUP_SENT, error_message)
                 } })
     }
     //============================================================================================
@@ -120,13 +120,23 @@ class RemoteConnector{
     private fun getStatus(grp_id: Int, expl_id: Int = -1) {
         disposable = service?.getStatus(grp_id, expl_id)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: IDLE, result.uda_id.toInt(), result.data ?: "", result.indizi ?: listOf())) },
-                        { error  -> processError(STATUS_ERROR, STATUS_ERROR, error.message ?: "") })
+                        { error  ->
+                                if (validateError(error.message ?: ""))
+                                    processError(STATUS_ERROR, STATUS_ERROR, error.message ?: "")
+
+                        })
     }
     //============================================================================================
     // ACCESSORY
     //============================================================================================
     private fun processError(code:Int, status:Int, msg: String = ""){
         newServerEvent.accept(Status(code, status, -1, msg))
+    }
+
+    // clean error from some cases that we want to ignore
+    private fun validateError(msg:String):Boolean{
+        return !(msg.contains("failed to connect") || msg.contains("timeout") || msg.contains("timed out"))
+
     }
     //============================================================================================
 }

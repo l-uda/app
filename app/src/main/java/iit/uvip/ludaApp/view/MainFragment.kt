@@ -5,51 +5,47 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResultListener
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-
+import iit.uvip.ludaApp.BuildConfig.server_url
 import iit.uvip.ludaApp.R
 import iit.uvip.ludaApp.model.*
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.ABORT
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.ABORTED
-import iit.uvip.ludaApp.viewmodel.StatusVM
-import kotlinx.android.synthetic.main.fragment_main.*
-import org.albaspazio.core.accessory.*
-import org.albaspazio.core.fragments.BaseFragment
-import org.albaspazio.core.ui.showAlert
-
-import iit.uvip.ludaApp.model.RemoteConnector.Companion.IDLE
-import iit.uvip.ludaApp.model.RemoteConnector.Companion.WAIT_APP
-import iit.uvip.ludaApp.model.RemoteConnector.Companion.GROUP_SENT
-import iit.uvip.ludaApp.model.RemoteConnector.Companion.REACH_UDA
-import iit.uvip.ludaApp.model.RemoteConnector.Companion.REACHING_UDA
-import iit.uvip.ludaApp.model.RemoteConnector.Companion.READY
-import iit.uvip.ludaApp.model.RemoteConnector.Companion.STARTED
-import iit.uvip.ludaApp.model.RemoteConnector.Companion.PAUSE
-import iit.uvip.ludaApp.model.RemoteConnector.Companion.PAUSED
-import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESUME
-import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESTART
-import iit.uvip.ludaApp.model.RemoteConnector.Companion.WAIT_DATA
-import iit.uvip.ludaApp.model.RemoteConnector.Companion.DATA_SENT
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.COMPLETED
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.DATA_SENT
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.ERROR_APP
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.ERROR_SERVER
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.ERROR_UDA
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.FINALIZED
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.GROUP_SENT
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.IDLE
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.PAUSE
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.PAUSED
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.REACHING_UDA
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.REACH_UDA
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.READY
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESET
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESTART
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESUME
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.STARTED
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.STATUS_ERROR
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.STATUS_SUCCESS
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.WAIT_APP
+import iit.uvip.ludaApp.model.RemoteConnector.Companion.WAIT_DATA
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.WAIT_SERVER
-import android.graphics.drawable.Drawable
-import android.widget.ImageView
-import iit.uvip.ludaApp.BuildConfig.server_url
+import iit.uvip.ludaApp.viewmodel.StatusVM
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
+import kotlinx.android.synthetic.main.fragment_main.*
+import org.albaspazio.core.accessory.isOnline
+import org.albaspazio.core.fragments.BaseFragment
 import org.albaspazio.core.ui.loadDrawableFromName
+import org.albaspazio.core.ui.showAlert
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -87,15 +83,14 @@ class MainFragment : BaseFragment(
     private val URL = server_url //"https://www.sagosoft.it/_API_/cpim/luda/www/luda_20210111_1500/api/app/"
 
     companion object {
-        const val NO_STATUS = -2
-        const val NO_ACTION = -2
+        const val NO_STATUS = -3
+        const val NO_ACTION = -3
 
         @JvmStatic val TARGET_FRAGMENT_ANSWER_REQUEST: String = "TARGET_FRAGMENT_ANSWER_REQUEST"
         @JvmStatic val TARGET_FRAGMENT_PAUSE_REQUEST: String = "TARGET_FRAGMENT_PAUSE_REQUEST"
 
         const val ERROR_QUESTION_EMPTY      = 1000
         const val ERROR_ANSWERS_EMPTY       = 1001
-        const val ERROR_UNRECOGNIZED_STATUS = 1002
         const val ERROR_APP_NOT_ASSOCIATED  = 1003
 
         const val QUESTION_TYPE_STR = 0
@@ -282,13 +277,13 @@ class MainFragment : BaseFragment(
     //endregion=====================================================================================
 
     //region STATES_CALLBACK =======================================================================
-    public fun setUDASubject(subject:String, has_subgroups:Boolean){
+    fun setUDASubject(subject:String, has_subgroups: Boolean) {
 
-        mSubjectName    = subject.toLowerCase()
+        mSubjectName    = subject.toLowerCase(Locale.ROOT)
         mHasSubgroups   = has_subgroups
         val intent      = Intent("SUBJECT_UPDATE")
         intent.putExtra("data", subject)
-        LocalBroadcastManager.getInstance(context!!).sendBroadcast(intent)
+        LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent)
 
         if(subject.isNotEmpty()) {
 
@@ -304,32 +299,33 @@ class MainFragment : BaseFragment(
         }
     }
 
-    public fun groupConfirmed(data:String){
+    fun groupConfirmed(data:String){
         val intent = Intent("GROUP_UPDATE")
         intent.putExtra("data", "REGISTRATO COME GRUPPO $mGroupId")
-        LocalBroadcastManager.getInstance(context!!).sendBroadcast(intent)
+        LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent)
 
         txtGroup.text = mGroupId.toString()
     }
 
-    public fun blinkUDA2Reach(udaid:String){
+    fun blinkUDA2Reach(udaid:String){
         mCurrUdaId = udaid
-        var uri = "${mSubjectName}_uda${mCurrUdaId}_accesa"
+        val uri = "${mSubjectName}_uda${mCurrUdaId}_accesa"
 
         ivOnIcons.loadDrawableFromName(uri, requireContext())
 
         val disposableTimer = Observable.interval(1000, 1000, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe( { aLong: Long           ->
+            .subscribe { aLong: Long ->
                 run {
-                    blinkFlag = if (blinkFlag == View.VISIBLE)  View.INVISIBLE
-                                else                            View.VISIBLE
+                    blinkFlag = if (blinkFlag == View.VISIBLE) View.INVISIBLE
+                    else View.VISIBLE
                     ivOnIcons.visibility = blinkFlag
-                }})
+                }
+            }
         compDispTimer.add(disposableTimer)
     }
 
-    public fun stopBlinking(stopandkeep:Boolean=true){
+    fun stopBlinking(stopandkeep:Boolean=true){
 
         if(stopandkeep)     ivOnIcons.visibility = View.VISIBLE
         else                ivOnIcons.setImageDrawable(null)
@@ -337,7 +333,7 @@ class MainFragment : BaseFragment(
         compDispTimer.clear()
     }
 
-    public fun udaCompleted(){
+    fun udaCompleted(){
         val uda_iv      = completedUDAsViews[mCurrUdaId.toInt()-1]
         val res_name    = "${mSubjectName}_uda${mCurrUdaId}_completata"
 
@@ -371,7 +367,7 @@ class MainFragment : BaseFragment(
         return true
     }
 
-    public fun getUrl():String{
+    fun getUrl():String{
         return txtUrl.text.toString()
     }
     //endregion======================================================================

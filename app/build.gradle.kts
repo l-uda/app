@@ -40,8 +40,9 @@ android {
             applicationIdSuffix = ".stage"
             versionNameSuffix = "-stage"
 //            buildConfigField("String", "server_url", "\"https://www.sagosoft.it/_API_/cpim/luda/www/luda_20210111_1500/api/app/\"")
-            buildConfigField("String", "server_url", "\"https://www.sagosoft.it/_API_/cpim/luda/www/luda_20220202_2200/api/app/\"")
+//            buildConfigField("String", "server_url", "\"https://www.sagosoft.it/_API_/cpim/luda/www/luda_20220202_2200/api/app/\"")
 //            buildConfigField("String", "server_url", "\"http://127.0.0.1:80/api/app/\"")
+            buildConfigField("String", "server_url", "\"https://luda.nixo.xyz/api/app/\"")
         }
         create("production") {
             dimension = "version"
