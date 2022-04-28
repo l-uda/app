@@ -42,6 +42,7 @@ class AnswerButtonsDF: DialogFragment() {
                 answers.add(answ)
             }
         }
+        btPause.visibility = View.INVISIBLE;
         btPause.setOnClickListener {
             sendPause()
         }
