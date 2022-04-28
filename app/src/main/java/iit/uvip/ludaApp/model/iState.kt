@@ -95,6 +95,7 @@ class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
     override fun setComponentsVisibility(status:Status){
         super.setComponentsVisibility(status)
 
+        fragment.btAction.visibility     = View.VISIBLE
         fragment.txtStatus.visibility    = View.VISIBLE
         fragment.txtGroup.visibility     = View.INVISIBLE
         fragment.txtUDA.visibility       = View.INVISIBLE
