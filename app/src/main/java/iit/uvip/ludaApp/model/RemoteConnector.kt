@@ -135,7 +135,7 @@ class RemoteConnector{
 
     // clean error from some cases that we want to ignore
     private fun validateError(msg:String):Boolean{
-        return !(msg.contains("failed to connect") || msg.contains("timeout") || msg.contains("timed out"))
+        return !(msg.contains("Failed to connect", ignoreCase = true) || msg.contains("timeout") || msg.contains("timed out"))
 
     }
 }
