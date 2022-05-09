@@ -1,5 +1,6 @@
 package iit.uvip.ludaApp.view
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -103,7 +104,7 @@ class MainFragment : BaseFragment(
     val viewModel:StatusVM by activityViewModels { viewModelFactory }
 
     private var compDispTimer: CompositeDisposable = CompositeDisposable()
-    private var blinkFlag:Int = View.INVISIBLE
+    private var blinkFlag:Int = -1      // not blinking
 
     private val remoteConnector: RemoteConnector = RemoteConnector()
 
@@ -111,6 +112,7 @@ class MainFragment : BaseFragment(
     private val viewModelFactory    = StatusVM.Factory(this, null, remoteConnector)
     private var mStatus:Int         = NO_STATUS //  in the onViewCreated I call viewModel.status.value = Status(STATUS_SUCCESS, RESET)
     private var mCurrUdaId:String   = ""
+    private var mCompletedUdaIds:MutableList<ImageView>   = mutableListOf()
     private var mSubjectName:String = ""
     private var mHasSubgroups:Boolean = false
 
@@ -304,21 +306,25 @@ class MainFragment : BaseFragment(
         intent.putExtra("data", "REGISTRATO COME GRUPPO $mGroupId")
         LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent)
 
-        txtGroup.text = mGroupId.toString()
+//        txtGroup.text = mGroupId.toString()
     }
 
+    @SuppressLint("WrongConstant")
     fun blinkUDA2Reach(udaid:String){
-        mCurrUdaId = udaid
-        val uri = "${mSubjectName}_uda${mCurrUdaId}_accesa"
 
+        if(blinkFlag != -1) return  // is already blinking
+
+        mCurrUdaId  = udaid
+        val uri     = "${mSubjectName}_uda${mCurrUdaId}_accesa"
+        blinkFlag   = View.INVISIBLE
         ivOnIcons.loadDrawableFromName(uri, requireContext())
 
         val disposableTimer = Observable.interval(1000, 1000, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { aLong: Long ->
                 run {
-                    blinkFlag = if (blinkFlag == View.VISIBLE) View.INVISIBLE
-                    else View.VISIBLE
+                    blinkFlag = if (blinkFlag == View.VISIBLE)  View.INVISIBLE
+                                else                            View.VISIBLE
                     ivOnIcons.visibility = blinkFlag
                 }
             }
@@ -330,15 +336,37 @@ class MainFragment : BaseFragment(
         if(stopandkeep)     ivOnIcons.visibility = View.VISIBLE
         else                ivOnIcons.setImageDrawable(null)
 
+        blinkFlag = -1
         compDispTimer.clear()
     }
 
-    fun udaCompleted(){
-        val uda_iv      = completedUDAsViews[mCurrUdaId.toInt()-1]
-        val res_name    = "${mSubjectName}_uda${mCurrUdaId}_completata"
+    fun setUdaCompletion(udas:List<Int>){
+
+        mCurrUdaId      = udas[udas.size-1].toString()
+
+        val nudas       = udas.size
+        mCompletedUdaIds = mutableListOf()
+        for(u in 0 until nudas-1)
+            mCompletedUdaIds.add(udaCompleted(udas[u]))
+
+    }
+
+    fun udaCompleted(udaid:Int=-1):ImageView{
+
+        val uda2complete =  if(udaid == -1) mCurrUdaId.toInt()-1
+                            else            udaid-1
+
+        val uda_iv      = completedUDAsViews[uda2complete]
+        val res_name    = "${mSubjectName}_uda${(uda2complete+1)}_completata"
 
         uda_iv.loadDrawableFromName(res_name, requireContext())
 
+        return uda_iv
+    }
+
+    fun resetUdas(){
+        for(uda_iv in completedUDAsViews)
+            uda_iv.visibility = View.INVISIBLE
     }
     //endregion=====================================================================================
 

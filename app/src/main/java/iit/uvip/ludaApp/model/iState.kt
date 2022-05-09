@@ -74,6 +74,7 @@ class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
         super.apply(status)
         fragment.stopPolling()
         fragment.stopBlinking(false)
+        fragment.resetUdas()
     }
 
     override fun setUITexts(status:Status){
@@ -82,8 +83,6 @@ class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
         val intent = Intent("GROUP_UPDATE")
         intent.putExtra("data", "NON REGISTRATO")
         LocalBroadcastManager.getInstance(fragment.requireContext()).sendBroadcast(intent)
-
-        fragment.txtGroup.text = res.getString(R.string.group_unregistered)
     }
 
     override fun setButtonAction(){
@@ -115,8 +114,6 @@ class NoSession(frg:MainFragment, res:Resources):State(frg,res){
         val intent = Intent("GROUP_UPDATE")
         intent.putExtra("data", "NON REGISTRATO")
         LocalBroadcastManager.getInstance(fragment.requireContext()).sendBroadcast(intent)
-
-        fragment.txtGroup.text = res.getString(R.string.group_unregistered)
     }
 
     override fun setButtonAction(){
@@ -154,7 +151,7 @@ class WaitApp(frg:MainFragment, res:Resources):State(frg,res){
         }
 
         fragment.btAbort.setOnClickListener{
-            fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET, -1)
+            fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET, listOf())
         }
     }
 
@@ -186,13 +183,16 @@ class GroupSent(frg:MainFragment, res:Resources):State(frg,res){
 
     // if UDA was not running (server in WAIT_APP status) => data is uda_id_by_app
     override fun apply(status:Status) {
-        super.apply(status)
+//        super.apply(status)
 
         if(status.data == "-1")
             show1MethodDialog(fragment.requireActivity(), res.getString(R.string.warning), res.getString(R.string.group_wrong))
                             {   fragment.viewModel.status.value = Status(STATUS_SUCCESS, RemoteConnector.WAIT_APP)  }
-        else
+        else {
+            val udas:List<Int>      = status.uda_id
+            fragment.setUdaCompletion(udas)
             fragment.groupConfirmed(status.data)
+        }
     }
 
     override fun setComponentsVisibility(status:Status){
@@ -214,7 +214,7 @@ class ReachUda(frg:MainFragment, res:Resources):State(frg,res){
         super.setUITexts(status)
 
         fragment.txtStatus.text         = message.first
-        fragment.txtUDA.text            = status.uda_id.toString()
+//        fragment.txtUDA.text            = status.uda_id.toString()
 
         fragment.btAction.text          = message.second
         fragment.btAction.visibility    = View.VISIBLE
@@ -223,7 +223,10 @@ class ReachUda(frg:MainFragment, res:Resources):State(frg,res){
     // data is udaid_to_reach
     override fun setComponentsVisibility(status:Status) {
         super.setComponentsVisibility(status)
-        fragment.blinkUDA2Reach(status.uda_id.toString())
+
+        val uda2reach = status.uda_id[status.uda_id.size-1]
+
+        fragment.blinkUDA2Reach(uda2reach.toString())
     }
 }
 
@@ -232,6 +235,15 @@ class ReachingUda(frg:MainFragment, res:Resources):State(frg,res){
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_reaching_uda), res.getString(R.string.action_reaching_uda))
 
     override var mPressStatus:Int = RemoteConnector.READY
+
+    // data is udaid_to_reach
+    override fun setComponentsVisibility(status:Status) {
+        super.setComponentsVisibility(status)
+
+        val uda2reach = status.uda_id[status.uda_id.size-1]
+
+        fragment.blinkUDA2Reach(uda2reach.toString())
+    }
 }
 
 // 5
@@ -351,7 +363,9 @@ class Completed(frg:MainFragment, res:Resources):State(frg,res){
 
     override fun apply(status:Status) {
         super.apply(status)
-        fragment.udaCompleted()
+        if(status.uda_id.isEmpty())
+            return
+        fragment.udaCompleted(status.uda_id[status.uda_id.size-1])
     }
 }
 

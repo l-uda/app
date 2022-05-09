@@ -27,7 +27,6 @@ class RemoteConnector{
         @JvmStatic val STATUS_ERROR         = 101    //
         @JvmStatic val TIMER_ERROR          = 102    //
 
-        @JvmStatic val GENERIC_ERROR        = 1000    //
         @JvmStatic val USER_ALREADY_EXIST   = 1001    //
 
         // STATUS GET
@@ -58,8 +57,8 @@ class RemoteConnector{
         const val ERROR_APP     = 21    //  ---> put(grpid, status, data)
 
         // STATUS UNMANAGED
-        const val START         = 6     //  the ADMIN send it to UDAs that respond with a STARTED
-        const val FINALIZE      = 17    //  .......
+//        const val START         = 6     //  the ADMIN send it to UDAs that respond with a STARTED
+//        const val FINALIZE      = 17    //  .......
 
 
     }
@@ -92,7 +91,7 @@ class RemoteConnector{
         else {
             lastSentStatus = status
             disposable = service?.putStatus(grp_id, expl_id, status, data)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
-                ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: -1, result.uda_id.toInt(), result.data ?: "", result.indizi ?: listOf()))},
+                ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: -1, result.uda_id ?: listOf(), result.data ?: "", result.indizi ?: listOf()))},
                             { error  -> processError(STATUS_ERROR, lastSentStatus, error.message ?: "") })
         }
     }
@@ -105,8 +104,10 @@ class RemoteConnector{
                         Log.d("REMOTE_CONN", "status: $it")
                         groupId     = grp_id
                         explorerId  = expl_id
-//                        newServerEvent.accept(Status(STATUS_SUCCESS, GROUP_SENT, it.uda_id.toInt(), it.data))
-                        newServerEvent.accept(Status(STATUS_SUCCESS, REACH_UDA, it.uda_id.toInt(), it.data ?: "", it.indizi ?: listOf()))
+                        // communicates completed udas, reach_uda comes in the next "get"
+                        newServerEvent.accept(Status(STATUS_SUCCESS, GROUP_SENT, it.uda_id ?: listOf(), it.data ?: "", it.indizi ?: listOf()))
+
+//                        newServerEvent.accept(Status(STATUS_SUCCESS, REACH_UDA, it.uda_id ?: listOf(), it.data ?: "", it.indizi ?: listOf()))
                     }
                 },
                 { error ->  run {
@@ -119,7 +120,7 @@ class RemoteConnector{
     //============================================================================================
     private fun getStatus(grp_id: Int, expl_id: Int = -1) {
         disposable = service?.getStatus(grp_id, expl_id)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: IDLE, result.uda_id.toInt(), result.data ?: "", result.indizi ?: listOf())) },
+            ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: IDLE, result.uda_id ?: listOf(), result.data ?: "", result.indizi ?: listOf())) },
                         { error  ->
                                 if (validateError(error.message ?: ""))
                             processError(STATUS_ERROR, STATUS_ERROR, error.message ?: "")
@@ -130,7 +131,7 @@ class RemoteConnector{
     // ACCESSORY
     //============================================================================================
     private fun processError(code:Int, status:Int, msg: String = ""){
-        newServerEvent.accept(Status(code, status, -1, msg))
+        newServerEvent.accept(Status(code, status, listOf(), msg))
     }
 
     // clean error from some cases that we want to ignore
