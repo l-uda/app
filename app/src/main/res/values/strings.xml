@@ -78,7 +78,7 @@
     <string name="status_aborted">UDA interrotta</string>
     <string name="action_aborted"/>
 
-    <string name="status_completed">\n\nLa UDA è finita\nattendi che di sapere quale sia la prossima</string>
+    <string name="status_completed">\n\nLa UDA è finita\nattendi di sapere quale sia la prossima</string>
     <string name="action_completed"/>
 
     <string name="status_finalized">Hai finito tutte le uda, vai al portale</string>
