@@ -361,7 +361,7 @@ class MainFragment : BaseFragment(
 
         mIsOnline = isOnline(requireContext())
         if(!mIsOnline){
-            showAlert(requireActivity(), "Errore", "Connessione internet non disponibile")
+            showAlert(requireActivity(), "Errore", "Connessione WiFi non disponibile")
             return false
         }
         return true

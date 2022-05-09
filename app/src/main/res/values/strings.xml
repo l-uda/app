@@ -57,7 +57,7 @@
     <string name="status_paused">UDA in pausa</string>
     <string name="action_paused">Riprendi</string>
 
-    <string name="status_pause">Mettendo in pausa UDA</string>
+    <string name="status_pause">Mettendo la UDA in pausa</string>
     <string name="action_pause" />
 
     <string name="status_resume">Riprendendo UDA</string>
@@ -69,7 +69,7 @@
     <string name="status_wait_data">Inserisci la risposta</string>
     <string name="action_wait_data">Invia</string>
 
-    <string name="status_data_sent">Risposta inviata…attendi</string>
+    <string name="status_data_sent">Risposta inviata… attendi</string>
     <string name="action_data_sent"/>
 
     <string name="status_abort">Sto forzando la chiusura della UDA</string>
@@ -78,7 +78,7 @@
     <string name="status_aborted">UDA interrotta</string>
     <string name="action_aborted"/>
 
-    <string name="status_completed">\n\nLa UDA è finita\nattendi che di sapere quale sia la prossima</string>
+    <string name="status_completed">\n\nLa UDA è finita\nattendi di sapere quale sia la prossima</string>
     <string name="action_completed"/>
 
     <string name="status_finalized">Hai finito tutte le uda, vai al portale</string>
@@ -93,7 +93,7 @@
     <string name="status_error_app">Errore nella APP, esci e riavviala</string>
     <string name="action_error_app"/>
 
-    <string name="status_error_app_not_associated">"l\'APP non è associata ad alcun gruppo"</string>
+    <string name="status_error_app_not_associated">"L\'APP non è associata ad alcun gruppo"</string>
     <string name="action_error_app_not_associated"/>
 
     <string name="status_error_srv">Errore nel server, attendi istruzioni</string>

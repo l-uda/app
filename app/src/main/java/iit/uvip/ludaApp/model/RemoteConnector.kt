@@ -122,10 +122,10 @@ class RemoteConnector{
             ?.subscribe({ result -> newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: IDLE, result.uda_id.toInt(), result.data ?: "", result.indizi ?: listOf())) },
                         { error  ->
                                 if (validateError(error.message ?: ""))
-                                    processError(STATUS_ERROR, STATUS_ERROR, error.message ?: "")
+                            processError(STATUS_ERROR, STATUS_ERROR, error.message ?: "")
 
-                        })
-    }
+            })
+        }
     //============================================================================================
     // ACCESSORY
     //============================================================================================
@@ -135,8 +135,7 @@ class RemoteConnector{
 
     // clean error from some cases that we want to ignore
     private fun validateError(msg:String):Boolean{
-        return !(msg.contains("failed to connect") || msg.contains("timeout") || msg.contains("timed out"))
+        return !(msg.contains("Failed to connect", ignoreCase = true) || msg.contains("timeout") || msg.contains("timed out"))
 
     }
-    //============================================================================================
 }
