@@ -206,7 +206,7 @@ class GroupSent(frg:MainFragment, res:Resources):State(frg,res){
 // 3
 class ReachUda(frg:MainFragment, res:Resources):State(frg,res){
 
-    override var mPressStatus:Int               = RemoteConnector.REACHING_UDA
+    override var mPressStatus:Int               = RemoteConnector.READY
     override var message:Pair<String, String>   = Pair(res.getString(R.string.status_reach_uda), res.getString(R.string.action_reach_uda))
 
     @SuppressLint("SetTextI18n")
@@ -231,26 +231,26 @@ class ReachUda(frg:MainFragment, res:Resources):State(frg,res){
 }
 
 // 4
-class ReachingUda(frg:MainFragment, res:Resources):State(frg,res){
-    override var message:Pair<String, String> = Pair(res.getString(R.string.status_reaching_uda), res.getString(R.string.action_reaching_uda))
-
-    override var mPressStatus:Int = RemoteConnector.READY
-
-    // data is udaid_to_reach
-    override fun setComponentsVisibility(status:Status) {
-        super.setComponentsVisibility(status)
-
-        val uda2reach = status.uda_id[status.uda_id.size-1]
-
-        fragment.blinkUDA2Reach(uda2reach.toString())
-    }
-}
+//class ReachingUda(frg:MainFragment, res:Resources):State(frg,res){
+//    override var message:Pair<String, String> = Pair(res.getString(R.string.status_reaching_uda), res.getString(R.string.action_reaching_uda))
+//
+//    override var mPressStatus:Int = RemoteConnector.READY
+//
+//    // data is udaid_to_reach
+//    override fun setComponentsVisibility(status:Status) {
+//        super.setComponentsVisibility(status)
+//
+//        val uda2reach = status.uda_id[status.uda_id.size-1]
+//
+//        fragment.blinkUDA2Reach(uda2reach.toString())
+//    }
+//}
 
 // 5
 class Ready(frg:MainFragment, res:Resources):State(frg,res){
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_ready), res.getString(R.string.action_ready))
 
-    override var mPressStatus:Int = RemoteConnector.REACHING_UDA
+    override var mPressStatus:Int = RemoteConnector.REACH_UDA
 
     override fun apply(status:Status) {
         super.apply(status)
@@ -272,9 +272,10 @@ class Pause(frg:MainFragment, res:Resources):State(frg,res){
 
 // 9
 class Paused(frg:MainFragment, res:Resources):State(frg,res){
-    override var message:Pair<String, String> = Pair(res.getString(R.string.status_paused), res.getString(R.string.action_paused))
+//    override var message:Pair<String, String> = Pair(res.getString(R.string.status_paused), res.getString(R.string.action_paused))
+    override var message:Pair<String, String> = Pair(res.getString(R.string.status_paused), "")
 
-    override var mPressStatus:Int = RemoteConnector.RESUME
+    override var mPressStatus:Int = MainFragment.NO_ACTION //RemoteConnector.RESUME
 
     override fun setComponentsVisibility(status:Status){
         super.setComponentsVisibility(status)

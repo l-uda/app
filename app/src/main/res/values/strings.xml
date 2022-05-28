@@ -11,7 +11,7 @@
 
 
 <!--    <string name="group_not_defined">gruppo non definito</string>-->
-    <string name="group_defined">Gruppo %1$s</string>
+    <string name="group_defined">REGISTRATO COME GRUPPO %1$s</string>
     <string name="group_unregistered">NON REGISTRATO</string>
 
 
@@ -35,29 +35,30 @@
     <string name="status_idle">Ma quanta fretta!! Il gioco non è ancora iniziato.\n\nDovrai attendere ancora un pò.</string>
     <string name="action_idle">Interrompi ricerca</string>
 
-    <string name="status_wait_app">Eccoci!! L’avventura sta per iniziare!\n\nSeleziona il numero del tuo gruppo e premi INVIO
+    <string name="status_wait_app">Eccoci!! L’avventura sta per iniziare!\nSeleziona il numero del tuo gruppo e premi INVIO
 </string>
     <string name="action_wait_app">Invio</string>
 
     <string name="status_group_sent">Codice inviato…aspetta</string>
     <string name="action_group_sent" />
 
-    <string name="status_reach_uda">OTTIMO LAVORO ESPLORATORE!\nPer portare a termine la tua avventura\nraggiungi la postazione lampeggiante\n\nTutto chiaro? Clicca \"GO!\" e parti</string>
-    <string name="action_reach_uda">GO!</string>
+<!--    <string name="status_reach_uda">OTTIMO LAVORO ESPLORATORE!\nPer portare a termine la tua avventura\nraggiungi la postazione lampeggiante\n\nTutto chiaro? Clicca \"GO!\" e parti</string>-->
+    <string name="status_reach_uda">OTTIMO LAVORO ESPLORATORE!\nPer portare a termine la tua avventura\nraggiungi la postazione lampeggiante\ne quando arrivi premi il tasto START</string>
+    <string name="action_reach_uda">START</string>
 
-    <string name="status_reaching_uda">\n\n\nFATTO? Quando arrivi premi il tasto START.</string>
-    <string name="action_reaching_uda">START</string>
+<!--    <string name="status_reaching_uda">\n\n\nFATTO? Quando arrivi premi il tasto START.</string>-->
+<!--    <string name="action_reaching_uda">START</string>-->
 
-    <string name="status_ready">\nBene! Stiamo per iniziare, solo qualche istante\naspettiamo che anche gli altri gruppi siano pronti....</string>
-    <string name="action_ready">Non sono pronto</string>
+    <string name="status_ready">\nMOLTO BENE! Stiamo per iniziare\naspettiamo che anche gli altri gruppi siano pronti....</string>
+    <string name="action_ready">segnala un problema</string>
 
-    <string name="status_started">UDA in corso</string>
+    <string name="status_started">\n\n\nUDA in corso</string>
     <string name="action_started">Pausa</string>
 
-    <string name="status_paused">UDA in pausa</string>
+    <string name="status_paused">\n\n\nUDA in pausa</string>
     <string name="action_paused">Riprendi</string>
 
-    <string name="status_pause">Mettendo la UDA in pausa</string>
+    <string name="status_pause">\n\nMettendo la UDA in pausa</string>
     <string name="action_pause" />
 
     <string name="status_resume">Riprendendo UDA</string>

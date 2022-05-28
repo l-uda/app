@@ -81,7 +81,7 @@
 
     <Button
         android:id="@+id/btAbort"
-        style="@style/Widget.AppCompat.Button.Colored"
+        style="@style/ActiveButton"
         android:layout_width="179dp"
         android:layout_height="97dp"
         android:layout_marginEnd="48dp"
@@ -213,6 +213,17 @@
         app:layout_constraintVertical_bias="0.0" />
 
 
+    <!--    <TextView-->
+<!--        android:id="@+id/txtError"-->
+<!--        android:layout_width="899dp"-->
+<!--        android:layout_height="67dp"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:text=""-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/txtStatus" />-->
+
+
     <ImageView
         android:id="@+id/ivUda5Completed"
         android:layout_width="match_parent"
@@ -226,18 +237,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
-
-    <!--    <TextView-->
-<!--        android:id="@+id/txtError"-->
-<!--        android:layout_width="899dp"-->
-<!--        android:layout_height="67dp"-->
-<!--        android:layout_marginTop="16dp"-->
-<!--        android:text=""-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/txtStatus" />-->
-
-
 
     <EditText
         android:id="@+id/txtUrl"
@@ -265,6 +264,21 @@
         android:visibility="invisible"
         app:layout_constraintStart_toEndOf="@+id/textView"
         app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/txtVersion"
+        android:layout_width="140dp"
+        android:layout_height="35dp"
+        android:layout_marginStart="12dp"
+        android:fontFamily="@font/rubik_medium"
+        android:textAlignment="center"
+        android:textSize="12sp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.976" />
 
     <TextView
         android:id="@+id/textView"

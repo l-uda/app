@@ -2,6 +2,7 @@ package iit.uvip.ludaApp.view
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -10,6 +11,7 @@ import android.widget.ImageView
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import iit.uvip.ludaApp.BuildConfig
 import iit.uvip.ludaApp.BuildConfig.server_url
 import iit.uvip.ludaApp.R
 import iit.uvip.ludaApp.model.*
@@ -25,7 +27,7 @@ import iit.uvip.ludaApp.model.RemoteConnector.Companion.GROUP_SENT
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.IDLE
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.PAUSE
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.PAUSED
-import iit.uvip.ludaApp.model.RemoteConnector.Companion.REACHING_UDA
+//import iit.uvip.ludaApp.model.RemoteConnector.Companion.REACHING_UDA
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.REACH_UDA
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.READY
 import iit.uvip.ludaApp.model.RemoteConnector.Companion.RESET
@@ -54,7 +56,7 @@ import java.util.concurrent.TimeUnit
 - The App can only put the following status:
 
 GROUP_SENT
-REACHING_UDA
+REACHING_UDA (dismissed)
 READY
 PAUSE
 RESUME
@@ -109,17 +111,17 @@ class MainFragment : BaseFragment(
     private val remoteConnector: RemoteConnector = RemoteConnector()
 
 //    private val viewModelFactory    = StatusVM.Factory(this, null, DependenciesProviderParam.getInstance(URL).remoteConnector)
-    private val viewModelFactory    = StatusVM.Factory(this, null, remoteConnector)
-    private var mStatus:Int         = NO_STATUS //  in the onViewCreated I call viewModel.status.value = Status(STATUS_SUCCESS, RESET)
-    private var mCurrUdaId:String   = ""
+    private val viewModelFactory        = StatusVM.Factory(this, null, remoteConnector)
+    private var mStatus:Int             = NO_STATUS //  in the onViewCreated I call viewModel.status.value = Status(STATUS_SUCCESS, RESET)
+    private var mCurrUdaId:String       = ""
     private var mCompletedUdaIds:MutableList<ImageView>   = mutableListOf()
-    private var mSubjectName:String = ""
-    private var mHasSubgroups:Boolean = false
+    private var mSubjectName:String     = ""
+    private var mHasSubgroups:Boolean   = false
 
-    private var isPolling:Boolean   = false     // this var is needed because stop polling takes time.
-                                                // when I call a stop polling and go to -1, there can be a status 0 that take me back to 0 (Nosession)
-                                                // with this flag I can ignore it
-    private lateinit var mState:State   // onViewCreated set it to RESET
+    private var isPolling:Boolean       = false     // this var is needed because stop polling takes time.
+                                                    // when I call a stop polling and go to -1, there can be a status 0 that take me back to 0 (Nosession)
+                                                    // with this flag I can ignore it
+    private lateinit var mState:State               // onViewCreated set it to RESET
 
     var completedUDAsViews:List<ImageView> = listOf()
 
@@ -136,7 +138,7 @@ class MainFragment : BaseFragment(
         WAIT_APP        to WaitApp(this, resources),    // 1
         GROUP_SENT      to GroupSent(this, resources),  // 2
         REACH_UDA       to ReachUda(this, resources),   // 3
-        REACHING_UDA    to ReachingUda(this, resources),// 4
+//        REACHING_UDA    to ReachingUda(this, resources),// 4
         READY           to Ready(this, resources),      // 5
         STARTED         to Started(this, resources),    // 7
         PAUSE           to Pause(this, resources),      // 8
@@ -205,6 +207,8 @@ class MainFragment : BaseFragment(
         initGroupsSpinner()
         setupObserver()
         txtUrl.setText(URL)
+        this.view?.setBackgroundColor(resources.getColor(R.color.bYellow))
+        txtVersion.text         = "ver. ${BuildConfig.VERSION_NAME}"
         completedUDAsViews      = listOf(ivUda1Completed, ivUda2Completed, ivUda3Completed, ivUda4Completed, ivUda5Completed)
         isPolling               = true    // to set init status I enable status-updating in the observer
         viewModel.status.value  = Status(STATUS_SUCCESS, RESET)
@@ -303,7 +307,10 @@ class MainFragment : BaseFragment(
 
     fun groupConfirmed(data:String){
         val intent = Intent("GROUP_UPDATE")
-        intent.putExtra("data", "REGISTRATO COME GRUPPO $mGroupId")
+        val groupstring =   if(mExplorerId == -1)   "$mGroupId"
+                            else                    "$mGroupId.$mExplorerId"
+
+        intent.putExtra("data", resources.getString(R.string.group_defined, groupstring))
         LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent)
 
 //        txtGroup.text = mGroupId.toString()

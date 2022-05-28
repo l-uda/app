@@ -48,7 +48,7 @@ class RemoteConnector{
 
         // STATUS PUT
         const val GROUP_SENT    = 2     //  ---> put(data , status)
-        const val REACHING_UDA  = 4     //  ---> put(grpid, status)
+//        const val REACHING_UDA  = 4     //  ---> put(grpid, status)
         const val PAUSE         = 8     //  ---> put(grpid, status)
         const val RESUME        = 10    //  ---> put(grpid, status)
         const val ABORT         = 11    //  ---> put(grpid, status)
