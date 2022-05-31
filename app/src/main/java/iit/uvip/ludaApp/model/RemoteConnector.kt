@@ -69,7 +69,7 @@ class RemoteConnector{
     fun startPolling(url: String){
 
         service         = UdaService.create(url)
-        disposableTimer = Observable.interval(200, 200, TimeUnit.MILLISECONDS)
+        disposableTimer = Observable.interval(200, 500, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe( { aLong: Long           -> getStatus(groupId, explorerId) },
                         { throwable: Throwable  -> processError(TIMER_ERROR, TIMER_ERROR, throwable.message ?: "") })
