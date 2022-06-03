@@ -89,6 +89,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-moshi:${Versions.retrofit}")
     implementation("com.squareup.retrofit2:adapter-rxjava2:${Versions.retrofit}")
     implementation("io.reactivex.rxjava2:rxjava:2.2.10")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
     testImplementation("junit:junit:4.13")
     androidTestImplementation("androidx.test:runner:1.3.0")
