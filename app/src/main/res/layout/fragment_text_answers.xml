@@ -46,7 +46,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtAnswer" />
 
-    <Button
+    <!--<Button
         android:id="@+id/btPause"
         android:layout_width="281dp"
         android:layout_height="85dp"
@@ -58,6 +58,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btSubmit" />
+        app:layout_constraintTop_toBottomOf="@+id/btSubmit" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -40,9 +40,9 @@ class AnswerTextDF: DialogFragment() {
             else            sendResult(txtAnswer.text.toString())
         }
 
-        btPause.setOnClickListener{
+    /*    btPause.setOnClickListener{
             sendPause()
-        }
+        }*/
     }
 
     private fun sendResult(answer:String) {
