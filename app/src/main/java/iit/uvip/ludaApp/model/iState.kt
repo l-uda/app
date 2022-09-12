@@ -3,6 +3,7 @@ package iit.uvip.ludaApp.model
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Resources
+import android.graphics.Color
 import android.view.View
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 
@@ -163,6 +164,7 @@ class WaitApp(frg:MainFragment, res:Resources):State(frg,res){
         val uda_subject    = status.data.jsonObject
         val uda_name       = uda_subject?.getString("nome")?.toUpperCase(Locale.ROOT) ?: ""
         val has_subgroups  = uda_subject?.getInt("has_subgroups") ?: 0
+        val color          = Color.parseColor(uda_subject?.getString("color") ?: "#000000")
 
         fragment.txtGroup.visibility     = View.INVISIBLE
         fragment.txtUDA.visibility       = View.INVISIBLE

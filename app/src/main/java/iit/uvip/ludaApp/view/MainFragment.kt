@@ -3,11 +3,13 @@ package iit.uvip.ludaApp.view
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -50,6 +52,11 @@ import org.albaspazio.core.ui.loadDrawableFromName
 import org.albaspazio.core.ui.showAlert
 import java.util.*
 import java.util.concurrent.TimeUnit
+
+import androidx.appcompat.app.AppCompatActivity
+
+
+
 
 
 /*
@@ -298,10 +305,21 @@ class MainFragment : BaseFragment(
 
             uri     = "${mSubjectName}_uda_spente"
             ivOffIcons.loadDrawableFromName(uri, requireContext())
+
+            uri     = "${mSubjectName}_sfondo"
+            ivBackground.loadDrawableFromName(uri, requireContext())
+
+            btAction.setBackgroundColor(color)
+            btAbort.setBackgroundColor(color)
+            txtStatus.setTextColor(color)
+            (activity as AppCompatActivity?)!!.supportActionBar!!.setBackgroundDrawable(ColorDrawable(color))
         }
         else {
             ivElements.visibility = View.INVISIBLE
             ivOffIcons.visibility = View.INVISIBLE
+            ivBackground.loadDrawableFromName("sfondo", requireContext())
+            btAction.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.black))
+            txtStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
         }
     }
 
