@@ -7,7 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -19,9 +21,19 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
+import iit.uvip.ludaApp.BuildConfig.server_url
 import kotlinx.android.synthetic.main.activity_main.*
+import org.albaspazio.core.accessory.getVersionName
 import org.albaspazio.core.fragments.BaseFragment
+import org.json.JSONObject
+import java.net.URL
+import kotlin.concurrent.thread
 
+
+class VersionResponse(json: String) : JSONObject(json) {
+    val version: String? = this.optString("version")
+    val url: String? = this.optString("url")
+}
 
 class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedListener {
 
@@ -48,6 +60,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
 
         setSupportActionBar(findViewById(R.id.my_toolbar))
@@ -56,6 +69,19 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.INTERNET),TEST_PERMISSIONS_REQUEST_INTERNET)
+
+        thread {
+            val json = try { URL(server_url + "version").readText() } catch (e: Exception) { return@thread }
+            runOnUiThread {
+                var remote_version = VersionResponse(json)
+                Log.d("VERSION", getVersionName(this))
+                if (getVersionName(this) != remote_version.version) {
+                    val browserIntent =
+                        Intent(Intent.ACTION_VIEW, Uri.parse(server_url + "app.apk"))
+                    startActivity(browserIntent)
+                }
+            }
+        }
     }
 
     override fun onPause() {
