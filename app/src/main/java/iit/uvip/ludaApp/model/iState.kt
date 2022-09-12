@@ -82,7 +82,7 @@ class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
         super.setUITexts(status)
 
         val intent = Intent("GROUP_UPDATE")
-        intent.putExtra("data", "NON REGISTRATO")
+        intent.putExtra("data", res.getString(R.string.group_unregistered))
         LocalBroadcastManager.getInstance(fragment.requireContext()).sendBroadcast(intent)
     }
 
@@ -113,7 +113,7 @@ class NoSession(frg:MainFragment, res:Resources):State(frg,res){
         super.setUITexts(status)
 
         val intent = Intent("GROUP_UPDATE")
-        intent.putExtra("data", "NON REGISTRATO")
+        intent.putExtra("data", res.getString(R.string.group_unregistered))
         LocalBroadcastManager.getInstance(fragment.requireContext()).sendBroadcast(intent)
     }
 
