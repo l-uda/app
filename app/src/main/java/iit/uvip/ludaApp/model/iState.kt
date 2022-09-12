@@ -347,6 +347,7 @@ class WaitData(frg:MainFragment, res:Resources):State(frg,res){
 
         val type:Int = when(json?.getString("input_type")){
             ""      -> MainFragment.QUESTION_TYPE_STR
+            "NO_AUTOSUGGEST"      -> MainFragment.QUESTION_TYPE_STR
             "0"     -> MainFragment.QUESTION_TYPE_NUM
             else    -> {
                 val arr = json?.getArrayOrNull("input_type")
