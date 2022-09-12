@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="iit.uvip.ludaApp">
+    <!-- To enable / disable wifi -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-feature
+        android:name="android.hardware.wifi"
+        android:required="true" />
 
     <application
         android:name=".MainApplication"
@@ -16,11 +22,18 @@
 
         <activity
             android:name="iit.uvip.ludaApp.SplashActivity"
-            android:screenOrientation="sensorLandscape">
+            android:screenOrientation="landscape"
+            android:clearTaskOnLaunch="true"
+            android:stateNotNeeded="true"
+            android:exported="true">
 <!--            android:theme="@style/SplashTheme">-->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
