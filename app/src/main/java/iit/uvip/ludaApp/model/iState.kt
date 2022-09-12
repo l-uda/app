@@ -165,6 +165,8 @@ class WaitApp(frg:MainFragment, res:Resources):State(frg,res){
         val uda_name       = uda_subject?.getString("nome")?.toUpperCase(Locale.ROOT) ?: ""
         val has_subgroups  = uda_subject?.getInt("has_subgroups") ?: 0
         val color          = Color.parseColor(uda_subject?.getString("color") ?: "#000000")
+        val group_id       = status.hint?.getOrNull(0) ?: 1
+        var explorer_id    = status.hint?.getOrNull(1) ?: 1
 
         fragment.txtGroup.visibility     = View.INVISIBLE
         fragment.txtUDA.visibility       = View.INVISIBLE
@@ -173,7 +175,10 @@ class WaitApp(frg:MainFragment, res:Resources):State(frg,res){
         fragment.spExplorer.visibility   = if(has_subgroups>0)   View.VISIBLE
                                            else                  View.INVISIBLE
 
-        fragment.setUDASubject(uda_name, has_subgroups>0)
+
+        fragment.setUDASubject(uda_name, has_subgroups>0, color)
+        // Prefill group id and explorer id, if one is suggested
+        fragment.setUDAExplorer(group_id, explorer_id)
     }
 }
 

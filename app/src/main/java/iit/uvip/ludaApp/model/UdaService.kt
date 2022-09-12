@@ -16,7 +16,7 @@ interface UdaService {
     // "https://www.sagosoft.it/_API_/cpim/luda/www/luda_20210111_1500/api/app/"
     // {"api":"API","version":"1.0","type":"UDA","function":"GET","i":"2","k":0,"status":"1","error":null,"description":"Questa funzione funziona!","notes":["notes","Lorem","Ipse","Dicitur"]}
     @GET("get/?")
-    fun getStatus(@Query("i") i: Int, @Query("k") k: Int = -1): Observable<StatusResult>
+    fun getStatus(@Query("i") i: Int, @Query("k") k: Int = -1, @Query("poll") poll: Int = -1): Observable<StatusResult>
 
     @PUT("put/?")
     fun putStatus(@Query("i") i: Int, @Query("k") k: Int = -1, @Query("status") status: Int, @Query("data") data: String? = ""): Observable<StatusResult>
@@ -46,6 +46,7 @@ data class StatusResult(var type: String = "",
                         var status:Int? = null,
                         var data: String? = null,
                         var uda_id: List<Int>? = null,
-                        var indizi: List<Int>? = null,
+                        var hint: List<Int>? = null,
                         var error: String? = null,
-                        var description: String? = null)
+                        var description: String? = null,
+                        var revision: Int = -1)

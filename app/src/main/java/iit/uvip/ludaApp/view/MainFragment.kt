@@ -175,7 +175,7 @@ class MainFragment : BaseFragment(
                 STATUS_SUCCESS -> {
                     try{
                         mStatus = it.status
-                        Log.d("Main", "new status $mStatus")
+                        //Log.d("Main", "new status $mStatus")
                     }
                     catch (e:Exception){
                         mStatus = ERROR_APP
@@ -199,6 +199,7 @@ class MainFragment : BaseFragment(
                 mState.apply(it)
             }
             catch (e:Exception){
+                Log.e("Error", e.toString())
                 mStatus = ERROR_APP
                 mState = states[mStatus] ?: states[ERROR_SERVER]!!
                 mState.apply(it)
@@ -231,7 +232,6 @@ class MainFragment : BaseFragment(
     //region REMOTE CALLS
     //======================================================================
     fun startPolling(){
-
         if(checkConnection()){
             isPolling = true
             viewModel.startPolling(URL)     // viewModel.startPolling(txtUrl.text.toString())
@@ -241,10 +241,10 @@ class MainFragment : BaseFragment(
     fun stopPolling(){
         mGroupId    = -1
         mExplorerId = -1
-        if(checkConnection() && isPolling){
+     /*   if(checkConnection() && isPolling){ */
             isPolling   = false
             viewModel.stopPolling()
-        }
+       /* }*/
     }
 
     // WAIT_APP State propose a groupId/explorerId
@@ -290,7 +290,24 @@ class MainFragment : BaseFragment(
     //endregion=====================================================================================
 
     //region STATES_CALLBACK =======================================================================
-    fun setUDASubject(subject:String, has_subgroups: Boolean) {
+    fun setUDAExplorer(group: Int = 1, explorer: Int = 1) {
+        // FIXME: PREVENT THIS IF MANUAL SELECTION!
+        if (mGroupId == -1) {
+            mGroupId = group
+            // Update dropdown (spinner) values, if valid
+            if (spGroup.getAdapter().getCount() >= group) {
+                spGroup.setSelection(group - 1)
+            }
+        }
+        if (mExplorerId == -1) {
+            mExplorerId = explorer
+            if (spExplorer.getAdapter().getCount() >= explorer) {
+                spExplorer.setSelection(explorer - 1)
+            }
+        }
+    }
+
+    fun setUDASubject(subject:String, has_subgroups: Boolean, color: Int = Color.BLACK) {
 
         mSubjectName    = subject.toLowerCase(Locale.ROOT)
         mHasSubgroups   = has_subgroups
