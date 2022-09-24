@@ -87,7 +87,7 @@ FINALIZED
 class MainFragment : BaseFragment(
     layout = R.layout.fragment_main,
     landscape = false,
-    hideAndroidControls = false
+    hideAndroidControls = true
 ){
 
     private val URL = server_url //"https://www.sagosoft.it/_API_/cpim/luda/www/luda_20210111_1500/api/app/"
@@ -233,6 +233,9 @@ class MainFragment : BaseFragment(
     //======================================================================
     fun startPolling(){
         if(checkConnection()){
+            if (isPolling) {
+                stopPolling()
+            }
             isPolling = true
             viewModel.startPolling(URL)     // viewModel.startPolling(txtUrl.text.toString())
         }

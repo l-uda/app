@@ -86,12 +86,14 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
     override fun onPause() {
         super.onPause()
+        stopLockTask()
         // Unregister since the activity is paused.
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver)
     }
 
     override fun onResume() {
         super.onResume()
+        startLockTask()
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, IntentFilter("NAVIGATION_UPDATE"))
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, IntentFilter("GROUP_UPDATE"))
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, IntentFilter("SUBJECT_UPDATE"))
@@ -111,8 +113,12 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         val currentFragment = my_nav_host_fragment.childFragmentManager.fragments.firstOrNull() as? BaseFragment
 
         if (currentFragment?.hideAndroidControls == true) {
-            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE or View.SYSTEM_UI_FLAG_FULLSCREEN)
+            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
 
             actionBar?.hide()
             supportActionBar?.hide()
@@ -136,6 +142,8 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     }
 
     override fun onBackPressed() {
+        return
+        /*
         val currentFragment = my_nav_host_fragment.childFragmentManager.fragments.firstOrNull() as? BaseFragment
 
         when(currentFragment?.LOG_TAG){
@@ -151,6 +159,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             }
             else                    -> super.onBackPressed()
         }
+         */
     }
 
     override fun onDestroy() {

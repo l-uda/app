@@ -140,8 +140,8 @@ class RemoteConnector{
                 if (beforeGroupId != -1 && beforeExplorerId != -1) {
                     polling = result.revision
                 } else {
-                    polling = result.revision - 1
-                    sleep(100)
+                    polling = - 1
+                    sleep(300)
                 }
                 if (isPolling) getStatus()
             },

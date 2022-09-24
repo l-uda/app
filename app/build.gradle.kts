@@ -42,13 +42,18 @@ android {
 //            buildConfigField("String", "server_url", "\"https://www.sagosoft.it/_API_/cpim/luda/www/luda_20210111_1500/api/app/\"")
 //            buildConfigField("String", "server_url", "\"https://www.sagosoft.it/_API_/cpim/luda/www/luda_20220202_2200/api/app/\"")
 //            buildConfigField("String", "server_url", "\"http://127.0.0.1:80/api/app/\"")
-            buildConfigField("String", "server_url", "\"https://luda.nixo.xyz/api/app/\"")
+           buildConfigField("String", "server_url", "\"https://luda.nixo.xyz/api/app/\"")
+            //buildConfigField("String", "server_url", "\"http://192.168.1.250:8080/api/app/\"")
         }
         create("production") {
             dimension = "version"
             applicationIdSuffix = ".production"
             versionNameSuffix = "-production"
-            buildConfigField("String", "server_url", "\"http://192.168.1.250:80/luda01/api/app/\"")
+           // buildConfigField("String", "server_url", "\"http://192.168.1.250:80/luda01/api/app/\"")
+           //buildConfigField("String", "server_url", "\"http://192.168.1.47:5000/api/app/\"")
+            // buildConfigField("String", "server_url", "\"http://10.42.0.164:5000/api/app/\"")
+            buildConfigField("String", "server_url", "\"https://luda.nixo.xyz/api/app/\"")
+           //buildConfigField("String", "server_url", "\"http://192.168.1.250:8080/api/app/\"")
         }
     }
 
