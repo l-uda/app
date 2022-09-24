@@ -133,15 +133,15 @@ class RemoteConnector{
     private fun getStatus() {
         var beforeGroupId = groupId
         var beforeExplorerId = explorerId
-        disposable = service?.getStatus(groupId, explorerId, polling)?.subscribeOn(Schedulers.io())?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe({ result ->
+        disposable = service?.getStatus(groupId, explorerId, polling)?.subscribeOn(Schedulers.io())?.subscribe(
+            { result ->
                 newServerEvent.accept(Status(STATUS_SUCCESS, result.status?.toString()?.toInt() ?: IDLE, result.uda_id ?: listOf(), result.data ?: "",
                 result.hint ?: listOf(), ))
                 if (beforeGroupId != -1 && beforeExplorerId != -1) {
                     polling = result.revision
                 } else {
                     polling = - 1
-                    sleep(300)
+                    sleep(500)
                 }
                 if (isPolling) getStatus()
             },
@@ -150,6 +150,7 @@ class RemoteConnector{
                             processError(STATUS_ERROR, STATUS_ERROR, error.message ?: "")
                             if (isPolling) getStatus()
                         })
+        // .observeOn(AndroidSchedulers.mainThread())
         }
     //============================================================================================
     // ACCESSORY

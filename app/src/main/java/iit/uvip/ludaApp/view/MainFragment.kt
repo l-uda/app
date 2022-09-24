@@ -132,11 +132,11 @@ class MainFragment : BaseFragment(
 
     var completedUDAsViews:List<ImageView> = listOf()
 
-    var mGroupId:Int    = -1
-    var mExplorerId:Int = -1
-
     private var mAnswerDF: DialogFragment?  = null
     private var mIsOnline:Boolean           = false
+    var mGroupId:Int    = -1
+    var mExplorerId:Int = -1
+    var groupExpConfirmed:Boolean = false
 
     // unmanaged: START=6, FINALIZE=17, WAIT_SERVER=19
     private val states:HashMap<Int, State> by lazy { hashMapOf(
@@ -256,6 +256,7 @@ class MainFragment : BaseFragment(
         mGroupId    = spGroup.selectedItemPosition+1
         mExplorerId =   if(mHasSubgroups )   spExplorer.selectedItemPosition+1
                         else                 -1
+        groupExpConfirmed = true
         if(checkConnection())        viewModel.put(mGroupId, mExplorerId, GROUP_SENT)
     }
 
@@ -294,7 +295,7 @@ class MainFragment : BaseFragment(
 
     //region STATES_CALLBACK =======================================================================
     fun setUDAExplorer(group: Int = 1, explorer: Int = 1) {
-        // FIXME: PREVENT THIS IF MANUAL SELECTION!
+        if (groupExpConfirmed) return;
         if (mGroupId == -1) {
             mGroupId = group
             // Update dropdown (spinner) values, if valid
@@ -347,7 +348,6 @@ class MainFragment : BaseFragment(
         val intent = Intent("GROUP_UPDATE")
         val groupstring =   if(mExplorerId == -1)   "$mGroupId"
                             else                    "$mGroupId.$mExplorerId"
-
         intent.putExtra("data", resources.getString(R.string.group_defined, groupstring))
         LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent)
 
