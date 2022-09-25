@@ -28,6 +28,23 @@ import org.albaspazio.core.fragments.BaseFragment
 import org.json.JSONObject
 import java.net.URL
 import kotlin.concurrent.thread
+import java.nio.file.Files
+import java.nio.file.Paths
+import android.widget.Toast
+
+import androidx.test.core.app.ApplicationProvider.getApplicationContext
+
+import android.content.ActivityNotFoundException
+import android.os.Build
+import android.os.Environment
+import androidx.core.content.FileProvider
+import androidx.test.core.app.ApplicationProvider
+import java.io.File
+import android.app.DownloadManager
+import android.provider.Settings
+import androidx.core.content.ContentProviderCompat.requireContext
+
+
 
 
 class VersionResponse(json: String) : JSONObject(json) {
@@ -35,12 +52,47 @@ class VersionResponse(json: String) : JSONObject(json) {
     val url: String? = this.optString("url")
 }
 
+
+
 class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedListener {
 
     private val TEST_PERMISSIONS_REQUEST_INTERNET = 2
 
     private var dialog: AlertDialog? = null
 
+
+    private fun InstallAPK(file :File) {
+        Log.d("install", file.toString())
+        if (file.exists()) {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setDataAndType(
+                uriFromFile(applicationContext, file),
+                "application/vnd.android.package-archive"
+            )
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            try {
+                applicationContext.startActivity(intent)
+            } catch (e: ActivityNotFoundException) {
+                e.printStackTrace()
+                Log.e("LUDA Update", "Error in opening the file!")
+            }
+        } else {
+            Log.d("error", "File does not exists")
+            Toast.makeText(applicationContext, "Install Failed", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun uriFromFile(context: Context?, file: File?): Uri? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            FileProvider.getUriForFile(
+                context!!, BuildConfig.APPLICATION_ID + ".provider",
+                file!!
+            )
+        } else {
+            Uri.fromFile(file)
+        }
+    }
     // This will be called whenever an Intent with an action named "NAVIGATION_UPDATE" is broadcasted.
     private val mMessageReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
@@ -58,6 +110,16 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         }
     }
 
+    private fun isFileExists(filename: String): Boolean {
+        val folder1 = File(Environment.getExternalStorageDirectory().absolutePath + filename)
+        return folder1.exists()
+    }
+
+    fun mydeleteFile(filename: String): Boolean {
+        val folder1 = File(Environment.getExternalStorageDirectory().absolutePath + filename)
+        return folder1.delete()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -72,15 +134,91 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
         thread {
             val json = try { URL(server_url + "version").readText() } catch (e: Exception) { return@thread }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!packageManager.canRequestPackageInstalls()) {
+                    startActivityForResult(
+                        Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(
+                            Uri.parse(
+                                String.format(
+                                    "package:%s",
+                                    packageName
+                                )
+                            )
+                        ), 1
+                    )
+                }
+            }
+//Storage Permission
+//Storage Permission
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                    ),
+                    1
+                )
+            }
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    1
+                )
+            }
+            stopLockTask()
+
             runOnUiThread {
                 var remote_version = VersionResponse(json)
                 Log.d("VERSION", getVersionName(this))
                 if (getVersionName(this) != remote_version.version) {
-                    val browserIntent =
-                        Intent(Intent.ACTION_VIEW, Uri.parse(server_url + "app.apk"))
-                    startActivity(browserIntent)
+                    val file = File(
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                        "app.apk"
+                    )
+                    if (file.exists()) {
+                        Log.d("file","esiste")
+
+                        file.delete()
+                    }
+                    Log.d("file", file.toString())
+
+                    Thread {
+                        val request = DownloadManager.Request(Uri.parse(server_url + "app.apk"))
+                        request.setDescription("Download Aggiornamento")
+                        request.allowScanningByMediaScanner()
+                        request.setTitle("app.apk")
+                        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+//Set the local destination for the downloaded file to a path within the application's external files directory
+//Set the local destination for the downloaded file to a path within the application's external files directory
+                        request.setDestinationInExternalPublicDir(
+                            Environment.DIRECTORY_DOWNLOADS,
+                            "app.apk"
+                        ) //To Store file in External Public Directory use "setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)"
+                        (this@MainActivity.getSystemService(DOWNLOAD_SERVICE) as DownloadManager).enqueue(request)
+                        val onComplete: BroadcastReceiver = object : BroadcastReceiver() {
+                            override fun onReceive(ctxt: Context, intent: Intent) {
+                                // After getting the result
+                                runOnUiThread {
+                                    // Post the result to the main thread
+                                    InstallAPK(file)
+                                }
+                            }
+                        }
+                        registerReceiver(onComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+                    }.start()
                 }
             }
+            startLockTask()
         }
     }
 

@@ -33,11 +33,22 @@ abstract class State(val fragment: MainFragment, val res:Resources) {
     }
 
     open fun setButtonAction(){
-        if(mPressStatus == MainFragment.NO_ACTION)  fragment.btAction.setOnClickListener{}
-        else                                        fragment.btAction.setOnClickListener{ fragment.put(mPressStatus, "") }
+        if(mPressStatus == MainFragment.NO_ACTION)
+        {
+            fragment.btAction.setOnClickListener{}
+            fragment.btAction.setOnLongClickListener{false}
+        }
+        else {
+            fragment.btAction.setOnClickListener{ fragment.put(mPressStatus, "") }
+            fragment.btAction.setOnLongClickListener{ false }
+        }
 
-        fragment.btAction2.setOnClickListener{}
-        fragment.btAbort.setOnClickListener{ fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET) }
+        fragment.btAction2.setOnClickListener {}
+        fragment.btAbort.setOnClickListener {}
+        fragment.btAbort.setOnLongClickListener {
+            fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET)
+            false
+        }
     }
 
     open fun setUITexts(status:Status){
@@ -89,7 +100,9 @@ class NotPolling(frg:MainFragment, res:Resources):State(frg,res){
     override fun setButtonAction(){
         super.setButtonAction()
         fragment.btAction.setOnClickListener{ fragment.startPolling() }
+        fragment.btAction.setOnLongClickListener{ false }
         fragment.btAbort.setOnClickListener{}
+        fragment.btAbort.setOnLongClickListener{false}
     }
 
     override fun setComponentsVisibility(status:Status){
@@ -124,8 +137,11 @@ class NoSession(frg:MainFragment, res:Resources):State(frg,res){
         fragment.btAction.setOnClickListener{
             fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET)
         }
+        fragment.btAction.setOnLongClickListener{
+false        }
 
         fragment.btAbort.setOnClickListener{}
+        fragment.btAbort.setOnLongClickListener{false}
     }
 
     override fun setComponentsVisibility(status:Status) {
@@ -150,9 +166,13 @@ class WaitApp(frg:MainFragment, res:Resources):State(frg,res){
         fragment.btAction.setOnClickListener{
             fragment.insertGroupID()
         }
-
-        fragment.btAbort.setOnClickListener{
+        fragment.btAction.setOnLongClickListener{
+false
+        }
+        fragment.btAbort.setOnClickListener{}
+        fragment.btAbort.setOnLongClickListener{
             fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET, listOf())
+            true
         }
     }
 
@@ -258,7 +278,15 @@ class Ready(frg:MainFragment, res:Resources):State(frg,res){
     override var message:Pair<String, String> = Pair(res.getString(R.string.status_ready), res.getString(R.string.action_ready))
 
     override var mPressStatus:Int = RemoteConnector.REACH_UDA
-
+    override fun setButtonAction(){
+        super.setButtonAction()
+        fragment.btAction.setOnClickListener{ }
+        fragment.btAction.setOnLongClickListener{false }
+        fragment.btAction.setOnLongClickListener{
+            fragment.put(mPressStatus, "")
+            true
+        }
+    }
     override fun apply(status:Status) {
         super.apply(status)
         fragment.stopBlinking()
