@@ -26,7 +26,9 @@ interface UdaService {
         fun create(BASE_URL:String): UdaService {
 
             val okHttpClient = OkHttpClient.Builder()
-                .connectTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(120, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
                 .build()
 
             val retrofit = Retrofit.Builder()
