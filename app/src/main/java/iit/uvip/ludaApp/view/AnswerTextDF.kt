@@ -32,7 +32,7 @@ class AnswerTextDF: DialogFragment() {
         when(json.getString("input_type")){
             ""  ->   txtAnswer.inputType     = InputType.TYPE_CLASS_TEXT
             "NO_AUTOSUGGEST" ->   txtAnswer.inputType     = (InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS)
-            "0" ->   txtAnswer.inputType     = InputType.TYPE_CLASS_NUMBER
+            "0" ->   txtAnswer.inputType     = InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_CLASS_NUMBER
         }
         btSubmit.setOnClickListener {
             if(txtAnswer.text.isEmpty())
