@@ -141,7 +141,8 @@ class NoSession(frg:MainFragment, res:Resources):State(frg,res){
 false        }
 
         fragment.btAbort.setOnClickListener{}
-        fragment.btAbort.setOnLongClickListener{false}
+        fragment.btAbort.setOnLongClickListener{            fragment.viewModel.status.value = Status(STATUS_SUCCESS, RESET, listOf())
+            true}
     }
 
     override fun setComponentsVisibility(status:Status) {
